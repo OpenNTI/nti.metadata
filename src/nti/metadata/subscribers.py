@@ -70,7 +70,4 @@ def _object_added(modeled, event):
 
 # IObjectModifiedEvent
 def _object_modified(modeled, event):
-	if IDeletedObjectPlaceholder.providedBy(modeled):
-		queue_remove(modeled)
-	else:
-		queue_modified(modeled)
+	queue_modified(modeled)

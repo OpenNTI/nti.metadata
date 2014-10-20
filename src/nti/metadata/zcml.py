@@ -21,26 +21,39 @@ from nti.metadata.interfaces import IMetadataQueueFactory
 
 class ImmediateQueueRunner(object):
 
-	def add(self, id):
+	def add( self, val ):
 		# Process immediately
-		queue = component.getUtility(IMetadataQueue)
-		queue.add( id )
-		process_queue( queue=queue )
+		queue = component.queryUtility(IMetadataQueue)
+		if queue is not None:
+			queue.add( val )
+			process_queue( queue=queue )
+
+	def update(self, val):
+		queue = component.queryUtility(IMetadataQueue)
+		if queue is not None:
+			queue.update( val )
+			process_queue( queue=queue )
+
+	def remove(self, val):
+		queue = component.queryUtility(IMetadataQueue)
+		if queue is not None:
+			queue.remove( val )
+			process_queue( queue=queue )
 
 @interface.implementer(IMetadataQueueFactory)
 class _ImmediateQueueFactory(object):
 
-	def get_queue( self, name ):
+	def get_queue( self ):
 		return ImmediateQueueRunner()
 
 @interface.implementer(IMetadataQueueFactory)
 class _ProcessingQueueFactory(object):
 
-	def get_queue( self, name ):
+	def get_queue( self ):
 		queue = component.getUtility(IMetadataQueue)
 		if queue is None:
-			raise ValueError("No queue exists for metadata processing queue (%s). "
-							 "Evolve error?" % name )
+			raise ValueError("No queue exists for metadata processing queue. "
+							 "Evolve error?" )
 		return queue
 
 def registerImmediateProcessingQueue(_context):

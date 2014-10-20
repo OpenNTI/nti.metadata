@@ -32,7 +32,6 @@ class _MetadataSchemaManager(SchemaManager):
 											package_name='nti.metadata.generations')
 
 def do_evolve(context):
-	pass
 	setHooks()
 	conn = context.connection
 	root = conn.root()

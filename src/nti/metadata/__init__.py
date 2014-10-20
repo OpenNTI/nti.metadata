@@ -33,7 +33,7 @@ def is_indexable(obj):
 	return not INoAutoIndex.providedBy( obj )
 
 def metadata_catalog():
-	result = component.getUtility(IMetadataCatalog, name=CATALOG_NAME)
+	result = component.queryUtility(IMetadataCatalog, name=CATALOG_NAME)
 	return result
 
 def metadata_queue():

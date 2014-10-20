@@ -12,8 +12,7 @@ from collections import Mapping
 
 import BTrees
 import pytz
-
-from datetime import datetime
+import datetime
 
 from zope import interface
 from zope.container.contained import Contained
