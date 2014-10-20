@@ -40,6 +40,7 @@ setup(
 	namespace_packages=['nti'],
 	install_requires=[
 		'setuptools',
+		'hypatia',
         'zc.catalogqueue',
         'zopyx.txng3.ext' if not IS_PYPY else '' # extensions dont build
 	],

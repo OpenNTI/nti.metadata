@@ -1,0 +1,47 @@
+<!-- -*- mode: nxml -*- -->
+<configure	xmlns="http://namespaces.zope.org/zope"
+			xmlns:i18n="http://namespaces.zope.org/i18n"
+			xmlns:zcml="http://namespaces.zope.org/zcml"
+			xmlns:meta="http://nextthought.com/metadata">
+
+	<include package="zope.component" file="meta.zcml" />
+	<include package="zope.security" file="meta.zcml" />
+	<include package="zope.component" />
+	<include package="zope.security" />
+
+	<include package="." file="meta.zcml" />
+
+	<!-- Generations -->
+
+	<utility factory=".generations.install._MetadataSchemaManager"
+			 name="nti.dataserver-metadata"
+			 provides="zope.generations.interfaces.IInstallableSchemaManager"/>
+
+	<!-- Subscribers -->
+
+	<subscriber handler=".subscribers._object_added"
+				for="* zope.intid.interfaces.IIntIdAddedEvent"/>
+	<subscriber handler=".subscribers._object_removed"
+				for="* zope.intid.interfaces.IIntIdRemovedEvent"/>
+	<subscriber handler=".subscribers._object_modified"
+				for="* zope.lifecycleevent.interfaces.IObjectModifiedEvent"/>
+
+	<!-- Register our queue -->
+
+	<configure zcml:condition="have devmode">
+
+		<configure zcml:condition="not-have testmode">
+			<meta:registerProcessingQueue />
+		</configure>
+
+		<configure zcml:condition="have testmode">
+			<meta:registerImmediateProcessingQueue />
+		</configure>
+
+	</configure>
+
+	<configure zcml:condition="not-have devmode">
+		<meta:registerProcessingQueue />
+	</configure>
+
+</configure>
