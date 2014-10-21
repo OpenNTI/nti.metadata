@@ -17,10 +17,12 @@ from nti.metadata import metadata_queue
 def query_uid( obj ):
 	result = None
 	intids = component.queryUtility( zope.intid.IIntIds )
-	if intids:
-		result = intids.queryId( obj )
+	# Extremely slow if we do __len__
 	if result is None:
 		result = getattr( obj, '_ds_intid', None )
+	if intids is not None:
+		result = intids.queryId( obj )
+
 	return result
 
 def add_2_queue(obj):
