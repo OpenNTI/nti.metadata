@@ -151,7 +151,7 @@ def _process_args(args):
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
 
 	target = MetadataIndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
-						  		retries=retries, sleep=sleep, use_redis=args.redis)
+						  		retries=retries, sleep=sleep)
 	result = target(time.sleep)
 	sys.exit(result)
 

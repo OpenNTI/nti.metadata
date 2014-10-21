@@ -25,8 +25,6 @@ from ZODB import loglevels
 from ZODB.POSException import POSKeyError
 from ZODB.POSException import ConflictError
 
-from redis.connection import ConnectionError
-
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.zodb.interfaces import UnableToAcquireCommitLock
@@ -164,10 +162,6 @@ class MetadataIndexReactor(object):
 					logger.error("process could not get component", self.pid)
 					break
 				except KeyboardInterrupt:
-					break
-				except ConnectionError:
-					result = 66
-					logger.exception("%s could not connect to redis", self.pid)
 					break
 				except (TypeError, StandardError):
 					result = 77 # Cache errors?
