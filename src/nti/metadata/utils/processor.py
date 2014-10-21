@@ -83,8 +83,6 @@ def main():
 							 help="Queue limit",
 							 type=int,
 							 default=DEFAULT_QUEUE_LIMIT)
-	arg_parser.add_argument('--redis', help="Use redis lock", action='store_true',
-							 dest='redis')
 
 	args = arg_parser.parse_args()
 	env_dir = os.getenv('DATASERVER_DIR')

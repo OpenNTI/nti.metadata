@@ -27,12 +27,10 @@ from ZODB.POSException import ConflictError
 
 from redis.connection import ConnectionError
 
-from nti.dataserver.interfaces import IRedisClient
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.zodb.interfaces import UnableToAcquireCommitLock
 
-from nti.metadata import LOCK_NAME
 from nti.metadata import process_queue
 
 from nti.metadata.interfaces import IIndexReactor
@@ -49,63 +47,28 @@ DEFAULT_INTERVAL = 30
 POS_KEY_ERROR_RT = -2
 CONFLICT_ERROR_RT = -1
 
-class _MockLockingClient(object):
-
-	singleton = None
-
-	def __new__(cls, *args, **kwargs):
-		if not cls.singleton:
-			cls.singleton = super(_MockLockingClient, cls).__new__(cls)
-		return cls.singleton
-
-	def lock(self, *args, **kwargs):
-		return self
-
-	def acquire(self, *args, **kwargs):
-		return True
-
-	def release(self, *args, **kwargs):
-		pass
-
 def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT,
 					   use_trx_runner=True,
 					   retries=DEFAULT_RETRIES,
-					   sleep=DEFAULT_SLEEP,
-					   lock_client=None,
-					   lock_name=LOCK_NAME):
-
-	# TODO Do we want locks, limits?
-
-	lock_client = lock_client if lock_client is not None else _MockLockingClient()
-	try:
-		lock = lock_client.lock(lock_name, MAX_INTERVAL)
-		aquired = lock.acquire(blocking=False)
-	except TypeError:
-		lock = lock_client.lock(lock_name)
-		aquired = lock.acquire()
+					   sleep=DEFAULT_SLEEP ):
 
 	result = 0
 	try:
-		if aquired:
-			try:
-				runner = functools.partial(process_queue, limit=limit)
-				if use_trx_runner:
-					trx_runner = component.getUtility(IDataserverTransactionRunner)
-					result = trx_runner(runner, retries=retries, sleep=sleep)
-				else:
-					result = runner()
-			except POSKeyError:
-				logger.exception("Cannot index object(s)")
-				result = POS_KEY_ERROR_RT
-			except (UnableToAcquireCommitLock, ConflictError) as e:
-				logger.error(e)
-				result = CONFLICT_ERROR_RT
-			except (TypeError, StandardError): # Cache errors?
-				logger.exception('Cannot process index messages')
-				raise
-	finally:
-		if aquired:
-			lock.release()
+		runner = functools.partial(process_queue, limit=limit)
+		if use_trx_runner:
+			trx_runner = component.getUtility(IDataserverTransactionRunner)
+			result = trx_runner(runner, retries=retries, sleep=sleep)
+		else:
+			result = runner()
+	except POSKeyError:
+		logger.exception("Cannot index object(s)")
+		result = POS_KEY_ERROR_RT
+	except (UnableToAcquireCommitLock, ConflictError) as e:
+		logger.error(e)
+		result = CONFLICT_ERROR_RT
+	except (TypeError, StandardError): # Cache errors?
+		logger.exception('Cannot process index messages')
+		raise
 	return result
 
 @interface.implementer(IIndexReactor)
@@ -126,7 +89,7 @@ class MetadataIndexReactor(object):
 	processor = pid = None
 
 	def __init__(self, min_time=None, max_time=None, limit=None,
-				 retries=None, sleep=None, use_redis=False):
+				 retries=None, sleep=None):
 
 		if min_time:
 			self.min_wait_time = min_time
@@ -142,11 +105,6 @@ class MetadataIndexReactor(object):
 
 		if retries:
 			self.retries = retries
-
-		if not use_redis:
-			self.lock_client = _MockLockingClient()
-		else:
-			self.lock_client = component.getUtility(IRedisClient)
 
 	def __repr__(self):
 		return "%s" % (self.__class__.__name__.lower())
@@ -174,8 +132,7 @@ class MetadataIndexReactor(object):
 					if not self.stop:
 						result = process_index_msgs(limit=batch_size,
 												 	sleep=self.sleep,
-												 	retries=self.retries,
-													lock_client=self.lock_client)
+												 	retries=self.retries )
 						duration = time.time() - start
 						if result == 0: # no work
 							batch_size = self.limit  # reset to default

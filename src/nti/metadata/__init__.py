@@ -27,8 +27,6 @@ from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 
 from nti.metadata.interfaces import IMetadataQueueFactory
 
-LOCK_NAME = str( "nti/metadata/lock" )
-
 def is_indexable(obj):
 	return not INoAutoIndex.providedBy( obj )
 
@@ -51,12 +49,12 @@ def queue_length(queue=None):
 	return result
 
 def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None):
-	# TODO sync_queue?
 	ids = component.getUtility(zope.intid.IIntIds)
 	catalog = metadata_catalog()
 
 	if queue is None:
 		queue = metadata_queue()
+	# Sync the queue if we have multiple instances running.
 	if sync_queue and queue.syncQueue():
 		logger.debug("Queue synced")
 	queue_size = queue_length(queue)

@@ -50,10 +50,7 @@ class _ImmediateQueueFactory(object):
 class _ProcessingQueueFactory(object):
 
 	def get_queue( self ):
-		queue = component.getUtility(IMetadataQueue)
-		if queue is None:
-			raise ValueError("No queue exists for metadata processing queue. "
-							 "Evolve error?" )
+		queue = component.queryUtility(IMetadataQueue)
 		return queue
 
 def registerImmediateProcessingQueue(_context):

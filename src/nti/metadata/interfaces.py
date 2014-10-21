@@ -10,8 +10,6 @@ from zope import interface
 
 from zc.catalogqueue.interfaces import ICatalogQueue
 
-# TODO Do we need this?
-# We cannot block if we are full.
 DEFAULT_QUEUE_LIMIT = 100
 
 class IIndexReactor(interface.Interface):

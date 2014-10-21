@@ -11,8 +11,6 @@ logger = __import__('logging').getLogger(__name__)
 import zope.intid
 from zope import component
 
-from nti.dataserver.interfaces import IDeletedObjectPlaceholder
-
 from nti.metadata import is_indexable
 from nti.metadata import metadata_queue
 
@@ -29,8 +27,10 @@ def add_2_queue(obj):
 	iid = query_uid(obj)
 	if iid is not None:
 		__traceback_info__ = iid
-		metadata_queue().add(iid)
-		return True
+		queue = metadata_queue()
+		if queue is not None:
+			queue.add(iid)
+			return True
 	return False
 
 def queue_added(obj):
@@ -47,8 +47,10 @@ def queue_modified(obj):
 		if iid is not None:
 			__traceback_info__ = iid
 			try:
-				metadata_queue().update(iid)
-				return True
+				queue = metadata_queue()
+				if queue is not None:
+					queue.update(iid)
+					return True
 			except TypeError:
 				pass
 	return False
@@ -58,7 +60,9 @@ def queue_remove(obj):
 		iid = query_uid(obj)
 		if iid is not None:
 			__traceback_info__ = iid
-			metadata_queue().remove(iid)
+			queue = metadata_queue()
+			if queue is not None:
+				queue.remove(iid)
 
 # IIntIdRemovedEvent
 def _object_removed(modeled, event):
