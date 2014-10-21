@@ -15,12 +15,17 @@ from nti.metadata import is_indexable
 from nti.metadata import metadata_queue
 
 def query_uid( obj ):
+	# TODO Can we filter out whole classes of objects?
 	result = None
 	intids = component.queryUtility( zope.intid.IIntIds )
-	# Extremely slow if we do __len__
+
 	if result is None:
 		result = getattr( obj, '_ds_intid', None )
-	if intids is not None:
+
+	# Fall back to our utility if we need to.
+	# Extremely slow if we do __len__
+	if 		result is None \
+		and intids is not None:
 		result = intids.queryId( obj )
 
 	return result
