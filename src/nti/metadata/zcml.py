@@ -3,7 +3,7 @@
 """
 Directives to be used in ZCML
 
-$Id$
+.. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
@@ -43,12 +43,16 @@ class ImmediateQueueRunner(object):
 @interface.implementer(IMetadataQueueFactory)
 class _ImmediateQueueFactory(object):
 
+	__slots__ = ()
+	
 	def get_queue( self ):
 		return ImmediateQueueRunner()
 
 @interface.implementer(IMetadataQueueFactory)
 class _ProcessingQueueFactory(object):
 
+	__slots__ = ()
+	
 	def get_queue( self ):
 		queue = component.queryUtility(IMetadataQueue)
 		return queue
