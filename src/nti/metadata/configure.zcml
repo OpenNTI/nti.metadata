@@ -35,6 +35,7 @@
 		</configure>
 
 		<configure zcml:condition="have testmode">
+			<!-- For testing and rollback, if needed -->
 			<meta:registerImmediateProcessingQueue />
 		</configure>
 

@@ -141,7 +141,7 @@ def _create_context(env_dir, devmode=False):
 	return context
 
 def _load_library():
-	library = component.queryUtility(IContentPackageLibrary)
+	library = component.getUtility(IContentPackageLibrary)
 	library.syncContentPackages()
 
 def _process_args(args):
