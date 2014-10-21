@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 ====================================
- Hypatia Documentation
+ Metadada Documentation
 ====================================
 
 Conceptual Documentation

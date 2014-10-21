@@ -1,8 +1,8 @@
 =======================
- Hypatia interfaces
+ Metadata interfaces
 =======================
 
 Interfaces
 ==========
 
-.. automodule:: nti.hypatia.interfaces
+.. automodule:: nti.metadata.interfaces
