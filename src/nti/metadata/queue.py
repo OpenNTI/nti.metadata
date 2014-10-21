@@ -21,7 +21,7 @@ from zc.catalogqueue.queue import CatalogQueue
 from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
 from zc.catalogqueue.CatalogEventQueue import REMOVED
 
-from nti.zope_catalog.interfaces import IMetadataCatalog
+from nti.dataserver.interfaces import IMetadataCatalog
 
 from nti.metadata.interfaces import IMetadataQueue
 from nti.metadata.interfaces import IMetadataEventQueue

@@ -21,7 +21,7 @@ from nti.dataserver.interfaces import IUser
 
 from nti.dataserver.metadata_index import CATALOG_NAME
 
-from nti.zope_catalog.interfaces import IMetadataCatalog
+from nti.dataserver.interfaces import IMetadataCatalog
 from nti.metadata.interfaces import IMetadataQueue
 from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 
