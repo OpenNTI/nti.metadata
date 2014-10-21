@@ -17,13 +17,19 @@ import argparse
 import zope.exceptions
 import zope.browserpage
 
+from zope import component
+
 from zope.container.contained import Contained
 from zope.configuration import xmlconfig, config
 from zope.dottedname import resolve as dottedname
 
 from z3c.autoinclude.zcml import includePluginsDirective
 
+from nti.contentlibrary.interfaces import IContentPackageLibrary
+
 from nti.dataserver.utils import run_with_dataserver
+
+from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.metadata.reactor import MetadataIndexReactor
 from nti.metadata.reactor import MIN_INTERVAL
@@ -90,7 +96,7 @@ def main():
 		raise IOError("Invalid dataserver environment root directory")
 
 	context = _create_context(env_dir)
-	conf_packages = ('nti.appserver', 'nti.metadata')
+	conf_packages = ( 'nti.appserver', 'nti.metadata' )
 
 	run_with_dataserver(environment_dir=env_dir,
 						xmlconfig_packages=conf_packages,
@@ -117,6 +123,12 @@ def _create_context(env_dir, devmode=False):
 		xmlconfig.include(context, files=os.path.join(slugs, '*.zcml'),
 						  package='nti.appserver')
 
+	library_zcml = os.path.join(etc, 'library.zcml')
+	if not os.path.exists(library_zcml):
+		raise Exception("Could not locate library zcml file %s", library_zcml)
+
+	xmlconfig.include( context, file=library_zcml, package='nti.appserver' )
+
 	# Include zope.browserpage.meta.zcm for tales:expressiontype
 	# before including the products
 	xmlconfig.include(context, file="meta.zcml", package=zope.browserpage)
@@ -127,6 +139,10 @@ def _create_context(env_dir, devmode=False):
 	includePluginsDirective(context, PP_APP_PRODUCTS)
 
 	return context
+
+def _load_library():
+	library = component.queryUtility(IContentPackageLibrary)
+	library.syncContentPackages()
 
 def _process_args(args):
 	import logging
@@ -149,6 +165,9 @@ def _process_args(args):
 
 	ei = '%(asctime)s %(levelname)-5.5s [%(name)s][%(thread)d][%(threadName)s] %(message)s'
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
+
+	transaction_runner = component.getUtility(IDataserverTransactionRunner)
+	transaction_runner( _load_library )
 
 	target = MetadataIndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
 						  		retries=retries, sleep=sleep)
