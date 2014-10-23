@@ -19,6 +19,8 @@ import zope.browserpage
 
 from zope import component
 
+from ZODB.interfaces import IDatabase
+
 from zope.container.contained import Contained
 from zope.configuration import xmlconfig, config
 from zope.dottedname import resolve as dottedname
@@ -27,6 +29,7 @@ from z3c.autoinclude.zcml import includePluginsDirective
 
 from nti.contentlibrary.interfaces import IContentPackageLibrary
 
+from nti.dataserver.utils import open_all_databases
 from nti.dataserver.utils import run_with_dataserver
 
 from nti.dataserver.interfaces import IDataserverTransactionRunner
@@ -166,6 +169,11 @@ def _process_args(args):
 	ei = '%(asctime)s %(levelname)-5.5s [%(name)s][%(thread)d][%(threadName)s] %(message)s'
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
 
+	## open connections to all databases
+	## so they can be recycled in the connection pool
+	db = component.getUtility(IDatabase)
+	open_all_databases(db, close_children=False)
+	
 	transaction_runner = component.getUtility(IDataserverTransactionRunner)
 	transaction_runner( _load_library )
 
