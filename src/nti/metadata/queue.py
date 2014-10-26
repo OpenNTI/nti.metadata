@@ -124,20 +124,20 @@ class MetadataQueue(Contained, CatalogQueue):
 	def process(self, ids, catalogs, limit):
 		done = 0
 		for queue in self._queues:
-			for _, (_, event) in queue.process(limit-done).iteritems():
+			for uid, (_, event) in queue.process(limit-done).iteritems():
 				if event is REMOVED:
 					for catalog in catalogs:
-						catalog.unindex_doc(id)
+						catalog.unindex_doc(uid)
 				else:
-					ob = ids.queryObject(id)
+					ob = ids.queryObject(uid)
 					if ob is None:
-						logger.warn("Couldn't find object for %s", id)
+						logger.warn("Couldn't find object for %s", uid)
 					else:
 						for catalog in catalogs:
 							if IMetadataCatalog.providedBy( catalog ):
-								catalog.force_index_doc( id, ob )
+								catalog.force_index_doc(uid, ob )
 							else:
-								catalog.index_doc(id, ob)
+								catalog.index_doc(uid, ob)
 				done += 1
 				self._change_length(-1)
 
