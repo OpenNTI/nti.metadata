@@ -8,18 +8,19 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-from collections import Mapping
-
-import BTrees
 import pytz
 import datetime
+from collections import Mapping
+
+from BTrees.Length import Length
 
 from zope import interface
+from zope.location import locate
 from zope.container.contained import Contained
 
 from zc.catalogqueue.queue import CatalogQueue
-from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
 from zc.catalogqueue.CatalogEventQueue import REMOVED
+from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
 
 from nti.dataserver.interfaces import IMetadataCatalog
 
@@ -44,7 +45,6 @@ class _ProxyMap(Mapping):
 
 	def items(self):
 		for k, v in self._data.items():
-			__traceback_info__ = k,v
 			yield k,v
 
 @interface.implementer(IMetadataEventQueue)
@@ -70,8 +70,7 @@ class MetadataQueue(Contained, CatalogQueue):
 		self._buckets = buckets
 		for i in xrange(buckets):
 			queue = MetadataEventQueue()
-			queue.__name__ = str(i)
-			queue.__parent__ = self
+			locate(queue, self, str(i))
 			self._queues.append(queue)
 
 	@property
@@ -89,7 +88,7 @@ class MetadataQueue(Contained, CatalogQueue):
 		try:
 			length = self._length
 		except AttributeError:
-			length = self._length = BTrees.Length.Length()
+			length = self._length = Length()
 		old = length.value
 		new = self.eventQueueLength()
 		result = old != new
@@ -125,7 +124,7 @@ class MetadataQueue(Contained, CatalogQueue):
 	def process(self, ids, catalogs, limit):
 		done = 0
 		for queue in self._queues:
-			for id, (_, event) in queue.process(limit-done).iteritems():
+			for _, (_, event) in queue.process(limit-done).iteritems():
 				if event is REMOVED:
 					for catalog in catalogs:
 						catalog.unindex_doc(id)
@@ -145,7 +144,7 @@ class MetadataQueue(Contained, CatalogQueue):
 			if done >= limit:
 				break
 
-		self.lastProcessedTime = datetime.datetime.now(pytz.UTC)
 		self.totalProcessed += done
+		self.lastProcessedTime = datetime.datetime.now(pytz.UTC)
 
 		return done
