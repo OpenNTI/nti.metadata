@@ -44,6 +44,12 @@ class ImmediateQueueRunner(object):
 		queue = component.queryUtility(IMetadataQueue)
 		if queue is not None:
 			queue.syncQueue()
+		
+	def __len__(self):
+		queue = component.queryUtility(IMetadataQueue)
+		if queue is not None:
+			return len(queue)
+		return 0
 
 @interface.implementer(IMetadataQueueFactory)
 class _ImmediateQueueFactory(object):
