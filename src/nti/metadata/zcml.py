@@ -19,8 +19,11 @@ from nti.metadata import process_queue
 from nti.metadata.interfaces import IMetadataQueue
 from nti.metadata.interfaces import IMetadataQueueFactory
 
+@interface.implementer(IMetadataQueue)
 class ImmediateQueueRunner(object):
 
+	buckets = 1
+	
 	def add( self, val ):
 		# Process immediately
 		queue = component.queryUtility(IMetadataQueue)
@@ -44,6 +47,15 @@ class ImmediateQueueRunner(object):
 		queue = component.queryUtility(IMetadataQueue)
 		if queue is not None:
 			queue.syncQueue()
+		
+	def eventQueueLength(self):
+		return len(self)
+
+	def __getitem__(self, idx):
+		queue = component.queryUtility(IMetadataQueue)
+		if queue is not None:
+			return queue[idx]
+		raise IndexError()		
 		
 	def __len__(self):
 		queue = component.queryUtility(IMetadataQueue)
