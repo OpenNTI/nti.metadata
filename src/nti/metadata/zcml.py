@@ -51,6 +51,9 @@ class ImmediateQueueRunner(object):
 	def eventQueueLength(self):
 		return len(self)
 
+	def process(self, *args, **kwargs):
+		pass
+
 	def __getitem__(self, idx):
 		queue = component.queryUtility(IMetadataQueue)
 		if queue is not None:
