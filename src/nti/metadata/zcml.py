@@ -39,6 +39,11 @@ class ImmediateQueueRunner(object):
 		if queue is not None:
 			queue.remove( val )
 			process_queue( queue=queue )
+			
+	def syncQueue(self):
+		queue = component.queryUtility(IMetadataQueue)
+		if queue is not None:
+			queue.syncQueue()
 
 @interface.implementer(IMetadataQueueFactory)
 class _ImmediateQueueFactory(object):
