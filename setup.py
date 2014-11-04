@@ -35,7 +35,6 @@ setup(
 	namespace_packages=['nti'],
 	install_requires=[
 		'setuptools',
-		'hypatia',
         'zc.catalogqueue'
 	],
 	entry_points=entry_points

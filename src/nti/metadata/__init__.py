@@ -19,9 +19,9 @@ from zope.catalog.interfaces import INoAutoIndex
 from nti.dataserver import users
 from nti.dataserver.interfaces import IUser
 
+from nti.dataserver.interfaces import IMetadataCatalog
 from nti.dataserver.metadata_index import CATALOG_NAME
 
-from nti.dataserver.interfaces import IMetadataCatalog
 from nti.metadata.interfaces import IMetadataQueue
 from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 
@@ -54,6 +54,7 @@ def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None):
 
 	if queue is None:
 		queue = metadata_queue()
+
 	# Sync the queue if we have multiple instances running.
 	if sync_queue and queue.syncQueue():
 		logger.debug("Queue synced")

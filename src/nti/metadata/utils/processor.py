@@ -34,13 +34,14 @@ from nti.dataserver.utils import run_with_dataserver
 
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
-from nti.metadata.reactor import MetadataIndexReactor
 from nti.metadata.reactor import MIN_INTERVAL
 from nti.metadata.reactor import MAX_INTERVAL
 from nti.metadata.reactor import DEFAULT_SLEEP
 from nti.metadata.reactor import DEFAULT_RETRIES
 from nti.metadata.reactor import DEFAULT_INTERVAL
 from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
+
+from nti.metadata.reactor import MetadataIndexReactor
 
 def sigint_handler(*args):
 	logger.info("Shutting down %s", os.getpid())
@@ -49,8 +50,8 @@ def sigint_handler(*args):
 def handler(*args):
 	raise SystemExit()
 
-signal.signal(signal.SIGINT, sigint_handler)
 signal.signal(signal.SIGTERM, handler)
+signal.signal(signal.SIGINT, sigint_handler)
 
 # package loader info
 
@@ -144,8 +145,9 @@ def _create_context(env_dir, devmode=False):
 	return context
 
 def _load_library():
-	library = component.getUtility(IContentPackageLibrary)
-	library.syncContentPackages()
+	library = component.queryUtility(IContentPackageLibrary)
+	if library is not None:
+		library.syncContentPackages()
 
 def _process_args(args):
 	import logging
@@ -175,10 +177,10 @@ def _process_args(args):
 	open_all_databases(db, close_children=False)
 	
 	transaction_runner = component.getUtility(IDataserverTransactionRunner)
-	transaction_runner( _load_library )
+	transaction_runner(_load_library)
 
 	target = MetadataIndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
-						  		retries=retries, sleep=sleep)
+						  		  retries=retries, sleep=sleep)
 	result = target(time.sleep)
 	sys.exit(result)
 
