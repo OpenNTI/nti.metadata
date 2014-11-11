@@ -9,12 +9,19 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+import gevent
+from functools import partial
+
 import zope.intid
 
 from zope import component
 from zope.lifecycleevent import IObjectRemovedEvent
 
+import transaction
+
 from nti.dataserver.interfaces import IEntity
+from nti.dataserver.interfaces import IDataserverTransactionRunner
+
 from nti.dataserver.metadata_index import IX_CREATOR
 
 from . import is_indexable
@@ -83,14 +90,25 @@ def _object_added(modeled, event):
 def _object_modified(modeled, event):
 	queue_modified(modeled)
 
-@component.adapter(IEntity, IObjectRemovedEvent)
-def _on_entity_removed(entity, event):
+def delete_entity_data(username):
 	queue = metadata_queue()
 	catalog = metadata_catalog()
-	if catalog is None or queue is None:
-		return
+	if queue is not None and catalog is not None:
+		username = username.lower()
+		query = {IX_CREATOR: {'any_of': (username,)} }
+		results = catalog.searchResults(**query)
+		for uid in results.uids:
+			queue.remove(uid)
+	
+@component.adapter(IEntity, IObjectRemovedEvent)
+def _on_entity_removed(entity, event):
+	username = entity.username
+	def _process_event():
+		transaction_runner = \
+			component.getUtility(IDataserverTransactionRunner)
+		func = partial(delete_entity_data, username=username)
+		transaction_runner(func)
+		return True
 
-	query = {IX_CREATOR: {'any_of': (entity.username,)} }
-	results = catalog.searchResults(**query)
-	for uid in results.uids:
-		queue.remove(uid)
+	transaction.get().addAfterCommitHook(
+					lambda success: success and gevent.spawn(_process_event))
