@@ -4,7 +4,6 @@
 .. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -91,6 +90,7 @@ def _object_modified(modeled, event):
 	queue_modified(modeled)
 
 def delete_entity_data(username):
+	result = 0
 	queue = metadata_queue()
 	catalog = metadata_catalog()
 	if queue is not None and catalog is not None:
@@ -99,6 +99,8 @@ def delete_entity_data(username):
 		results = catalog.searchResults(**query)
 		for uid in results.uids:
 			queue.remove(uid)
+			result +=1
+	return result
 	
 @component.adapter(IEntity, IObjectRemovedEvent)
 def _on_entity_removed(entity, event):
