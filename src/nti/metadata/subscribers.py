@@ -4,15 +4,22 @@
 .. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
 import zope.intid
-from zope import component
 
-from nti.metadata import is_indexable
-from nti.metadata import metadata_queue
+from zope import component
+from zope.lifecycleevent import IObjectRemovedEvent
+
+from nti.dataserver.interfaces import IEntity
+from nti.dataserver.metadata_index import IX_CREATOR
+
+from . import is_indexable
+from . import metadata_queue
+from . import metadata_catalog
 
 def query_uid( obj ):
 	intids = component.queryUtility( zope.intid.IIntIds )
@@ -75,3 +82,15 @@ def _object_added(modeled, event):
 # IObjectModifiedEvent
 def _object_modified(modeled, event):
 	queue_modified(modeled)
+
+@component.adapter(IEntity, IObjectRemovedEvent)
+def _on_entity_removed(entity, event):
+	queue = metadata_queue()
+	catalog = metadata_catalog()
+	if catalog is None or queue is None:
+		return
+
+	query = {IX_CREATOR: {'any_of': (entity.username,)} }
+	results = catalog.searchResults(**query)
+	for uid in results.uids:
+		queue.remove(uid)
