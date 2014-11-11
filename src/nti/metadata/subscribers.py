@@ -90,6 +90,7 @@ def _object_modified(modeled, event):
 	queue_modified(modeled)
 
 def delete_entity_data(username):
+	logger.info("Removing metadata data for user %s", username)
 	result = 0
 	queue = metadata_queue()
 	catalog = metadata_catalog()
