@@ -18,7 +18,6 @@
 			 provides="zope.generations.interfaces.IInstallableSchemaManager"/>
 
 	<!-- Subscribers -->
-
 	<subscriber handler=".subscribers._object_added"
 				for="* zope.intid.interfaces.IIntIdAddedEvent"/>
 
@@ -29,7 +28,8 @@
 				for="* zope.lifecycleevent.interfaces.IObjectModifiedEvent"/>
 
 	<subscriber handler=".subscribers._on_entity_removed" />
-	
+	<subscriber handler=".subscribers.clear_replies_to_creator_when_creator_removed" />
+
 	<!-- Register our queue -->
 
 	<configure zcml:condition="have devmode">

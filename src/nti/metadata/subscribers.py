@@ -22,6 +22,9 @@ from nti.dataserver.interfaces import IEntity
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.dataserver.metadata_index import IX_CREATOR
+from nti.dataserver.metadata_index import IX_TAGGEDTO
+from nti.dataserver.metadata_index import IX_SHAREDWITH
+from nti.dataserver.metadata_index import IX_REPLIES_TO_CREATOR
 
 from . import is_indexable
 from . import metadata_queue
@@ -115,3 +118,37 @@ def _on_entity_removed(entity, event):
 
 	transaction.get().addAfterCommitHook(
 					lambda success: success and gevent.spawn(_process_event))
+
+
+@component.adapter(IEntity, IObjectRemovedEvent)
+def clear_replies_to_creator_when_creator_removed(entity, event):
+	"""
+	When a creator is removed, all of the things that were direct
+	replies to that creator are now \"orphans\", with a value
+	for ``inReplyTo``. We clear out the index entry for ``repliesToCreator``
+	for this entity in that case.
+
+	The same scenario holds for things that were shared directly
+	to that user.
+	"""
+
+	catalog = metadata_catalog()
+	if catalog is None:
+		# Not installed yet
+		return
+
+	# These we can simply remove, this creator doesn't exist anymore
+	for ix_name in (IX_REPLIES_TO_CREATOR, IX_TAGGEDTO):
+		index = catalog[ix_name]
+		query = {ix_name: {'any_of': (entity.username,)} }
+		results = catalog.searchResults(**query)
+		for uid in results.uids:
+			index.unindex_doc(uid)
+
+	# These, though, may still be shared, so we need to reindex them
+	index = catalog[IX_SHAREDWITH]
+	results = catalog.searchResults(sharedWith={'all_of': (entity.username,)})
+	uidutil = results.uidutil
+	for uid in results.uids:
+		obj = uidutil.getObject(uid)
+		index.index_doc(uid, obj)
