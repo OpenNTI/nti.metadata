@@ -92,14 +92,14 @@ def _object_modified(modeled, event):
 def delete_entity_data(username):
 	logger.info("Removing metadata data for user %s", username)
 	result = 0
-	queue = metadata_queue()
 	catalog = metadata_catalog()
-	if queue is not None and catalog is not None:
+	if catalog is not None:
 		username = username.lower()
+		index = catalog[IX_CREATOR]
 		query = {IX_CREATOR: {'any_of': (username,)} }
 		results = catalog.searchResults(**query)
 		for uid in results.uids:
-			queue.remove(uid)
+			index.unindex_doc(uid)
 			result +=1
 	return result
 	
