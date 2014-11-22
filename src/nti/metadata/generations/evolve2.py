@@ -19,7 +19,9 @@ from zope.component.hooks import site, setHooks
 
 from ZODB.POSException import POSError
 
-from nti.chatserver.interfaces import IMessageInfo
+from nti.chatserver.interfaces import IUserTranscriptStorage
+
+from nti.dataserver.interfaces import IUser
 
 from .. import metadata_queue
 
@@ -41,14 +43,20 @@ def do_evolve(context):
 		if queue is None:
 			return total
 
-		for uid in intids:
-			try:
-				obj = intids.getObject(uid)
-				if IMessageInfo.providedBy(obj):
-					queue.add(uid)
-					total +=1 
-			except POSError:
-				pass
+		users = ds_folder['users']
+		for user in users.values():
+			if not IUser.providedBy(user):
+				continue
+			storage = IUserTranscriptStorage(user)
+			for transcript in storage.transcripts:
+				for message in transcript.Messages:
+					try:
+						uid = intids.queryId(message)
+						if uid is not None:
+							queue.add(uid)
+							total +=1 
+					except (TypeError, POSError):
+						pass
 		logger.info('Metadata evolution %s done; %s object(s) put in queue',
 					generation, total)
 	return total
