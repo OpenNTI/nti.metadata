@@ -8,6 +8,7 @@ __docformat__ = "restructuredtext en"
 # pylint: disable=W0212,R0904
 
 from hamcrest import is_
+from hamcrest import is_in
 from hamcrest import has_length
 from hamcrest import assert_that
 
@@ -60,8 +61,10 @@ class TestEvolve2(unittest.TestCase):
 			
 			conn.add( msg )
 			conn.add( meet )
-			component.getUtility( zc_intid.IIntIds ).register( msg )
-			component.getUtility( zc_intid.IIntIds ).register( meet )
+			intid = component.getUtility( zc_intid.IIntIds )
+			intid.register( msg )
+			msg_id = intid.getId(msg)
+			intid.register( meet )
 			storage.add_message( meet, msg )
 
 		with mock_dataserver.mock_db_trans(self.ds) as conn:
@@ -71,14 +74,19 @@ class TestEvolve2(unittest.TestCase):
 	
 			total = evolve2.do_evolve(context)
 			assert_that(total, is_(1))
-				
+		
 		with mock_dataserver.mock_db_trans(self.ds) as conn:
 			catalog = component.getUtility(ICatalog, name=CATALOG_NAME)
+			
+			for name in ('createdTime', 'lastModified'):
+				index = catalog[name]
+				all_ids = tuple(index.ids())
+				assert_that(msg_id, is_in(all_ids))
 			
 			# Everything is in the catalog as it should be
 			for query in ( {'containerId': {'any_of': ('tag:nti:foo',) }},
 						   {'creator': {'any_of': ('nt@nti.com',)} },
-						   {'mimeType': {'any_of': ('application/vnd.nextthought.messageinfo',)}} ):
+						   {'mimeType': {'any_of': ('application/vnd.nextthought.messageinfo',)}}):
 				results = list(catalog.searchResults(**query))
 				assert_that( results, has_length(1))
 		
