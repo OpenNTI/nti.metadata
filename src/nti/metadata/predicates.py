@@ -17,7 +17,7 @@ from nti.dataserver.interfaces import IPrincipalMetadataObjectsIntIds
 
 @component.adapter(IUser)
 @interface.implementer(IPrincipalMetadataObjectsIntIds)
-class _ContainedPrincipalCatalogableObjects(object):
+class _ContainedPrincipalObjectsIntIds(object):
 
 	__slots__ = ()
 
