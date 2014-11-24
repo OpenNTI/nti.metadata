@@ -13,10 +13,10 @@ from zope import component
 from zope import interface
 
 from nti.dataserver.interfaces import IUser
-from nti.dataserver.interfaces import IMetadataCatalogableObjects
+from nti.dataserver.interfaces import IPrincipalMetadataObjectsIntIds
 
 @component.adapter(IUser)
-@interface.implementer(IMetadataCatalogableObjects)
+@interface.implementer(IPrincipalMetadataObjectsIntIds)
 class _ContainedPrincipalCatalogableObjects(object):
 
 	__slots__ = ()
@@ -24,5 +24,7 @@ class _ContainedPrincipalCatalogableObjects(object):
 	def __init__(self, user):
 		self.user = user
 
-	def iter_objects(self):
-		return ()
+	def iter_intids(self):
+		user = self.user
+		for uid in user.iter_intids(only_ntiid_containers=True):
+			yield uid
