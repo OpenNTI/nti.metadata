@@ -3,6 +3,7 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
@@ -110,15 +111,12 @@ def main():
 						use_transaction_runner=False,
 						function=lambda: _process_args(args))
 
-def _create_context(env_dir, devmode=False):
+def _create_context(env_dir, with_library=False):
 	etc = os.getenv('DATASERVER_ETC_DIR') or os.path.join(env_dir, 'etc')
 	etc = os.path.expanduser(etc)
 
 	context = config.ConfigurationMachine()
 	xmlconfig.registerCommonDirectives(context)
-
-	if devmode:
-		context.provideFeature("devmode")
 
 	slugs = os.path.join(etc, 'package-includes')
 	if os.path.exists(slugs) and os.path.isdir(slugs):
@@ -127,11 +125,11 @@ def _create_context(env_dir, devmode=False):
 		xmlconfig.include(context, files=os.path.join(slugs, '*.zcml'),
 						  package='nti.appserver')
 
-	library_zcml = os.path.join(etc, 'library.zcml')
-	if not os.path.exists(library_zcml):
-		raise Exception("Could not locate library zcml file %s", library_zcml)
-
-	xmlconfig.include( context, file=library_zcml, package='nti.appserver' )
+	if with_library:
+		library_zcml = os.path.join(etc, 'library.zcml')
+		if not os.path.exists(library_zcml):
+			raise Exception("Could not locate library zcml file %s", library_zcml)
+		xmlconfig.include( context, file=library_zcml, package='nti.appserver' )
 
 	# Include zope.browserpage.meta.zcm for tales:expressiontype
 	# before including the products
