@@ -17,13 +17,10 @@ import zope.intid
 from zope import component
 from zope.component.hooks import site, setHooks
 
-from ZODB.POSException import POSError
-
-from nti.chatserver.interfaces import IUserTranscriptStorage
-
 from nti.dataserver.interfaces import IUser
 
 from .. import metadata_queue
+from ..predicates import user_messageinfo_iter_intids
 
 def do_evolve(context):
 	setHooks()
@@ -47,16 +44,11 @@ def do_evolve(context):
 		for user in users.values():
 			if not IUser.providedBy(user):
 				continue
-			storage = IUserTranscriptStorage(user)
-			for transcript in storage.transcripts:
-				for message in transcript.Messages:
-					try:
-						uid = intids.queryId(message)
-						if uid is not None:
-							queue.add(uid)
-							total +=1 
-					except (TypeError, POSError):
-						pass
+
+			for uid in user_messageinfo_iter_intids(user, intids=intids):
+				queue.add(uid)
+				total += 1
+			
 		logger.info('Metadata evolution %s done; %s object(s) put in queue',
 					generation, total)
 	return total

@@ -9,8 +9,15 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+import zope.intid
+
 from zope import component
 from zope import interface
+
+from ZODB.interfaces import IBroken
+from ZODB.POSException import POSError
+
+from nti.chatserver.interfaces import IUserTranscriptStorage
 
 from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IPrincipalMetadataObjectsIntIds
@@ -27,4 +34,37 @@ class _ContainedPrincipalObjectsIntIds(object):
 	def iter_intids(self):
 		user = self.user
 		for uid in user.iter_intids(only_ntiid_containers=True):
+			yield uid
+
+def user_messageinfo_iter_intids(user, intids=None, broken=None):
+	intids = component.getUtility(zope.intid.IIntIds) if intids is None else intids
+	storage = IUserTranscriptStorage(user)
+	broken = list() if broken is None else broken
+	for transcript in storage.transcripts:
+		for message in transcript.Messages:
+			try:
+				if IBroken.providedBy(message):
+					broken.append(message)
+					logger.warn("ignoring broken object %s", type(message))
+				else:
+					uid = intids.queryId(message)
+					if uid is None:
+						logger.warn("ignoring unregistered object %s", message)
+					else:
+						yield uid
+			except (POSError):
+				broken.append(message)
+				logger.error("ignoring broken object %s", type(message))
+
+@component.adapter(IUser)
+@interface.implementer(IPrincipalMetadataObjectsIntIds)
+class _MessageInfoPrincipalObjectsIntIds(object):
+
+	__slots__ = ()
+
+	def __init__(self, user):
+		self.user = user
+
+	def iter_intids(self):
+		for uid in user_messageinfo_iter_intids(self.user):
 			yield uid

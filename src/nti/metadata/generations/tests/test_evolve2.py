@@ -71,7 +71,7 @@ class TestEvolve2(unittest.TestCase):
 			class _context(object): pass
 			context = _context()
 			context.connection = conn
-	
+
 			total = evolve2.do_evolve(context)
 			assert_that(total, is_(1))
 		
