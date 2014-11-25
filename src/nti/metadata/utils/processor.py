@@ -94,6 +94,9 @@ def main():
 							 help="Queue limit",
 							 type=int,
 							 default=DEFAULT_QUEUE_LIMIT)
+	arg_parser.add_argument('--pke', help="Don't ignore POSKeyError", 
+							 action='store_true',
+							 dest='allow_pke')
 
 	args = arg_parser.parse_args()
 	env_dir = os.getenv('DATASERVER_DIR')
@@ -162,6 +165,7 @@ def _process_args(args):
 	sleep = args.sleep
 	assert sleep >= 0 and sleep <= 10
 
+	ignore_pke = not args.allow_pke 
 	mintime = max(min(mintime, MAX_INTERVAL), MIN_INTERVAL)
 	maxtime = max(min(maxtime, MAX_INTERVAL), MIN_INTERVAL)
 
@@ -177,7 +181,7 @@ def _process_args(args):
 	transaction_runner(_load_library)
 
 	target = MetadataIndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
-						  		  retries=retries, sleep=sleep)
+						  		  retries=retries, sleep=sleep, ignore_pke=ignore_pke)
 	result = target(time.sleep)
 	sys.exit(result)
 

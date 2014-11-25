@@ -18,6 +18,9 @@ from zope import interface
 from zope.location import locate
 from zope.container.contained import Contained
 
+from ZODB.interfaces import IBroken
+from ZODB.POSException import POSKeyError
+
 from zc.catalogqueue.queue import CatalogQueue
 from zc.catalogqueue.CatalogEventQueue import REMOVED
 from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
@@ -121,23 +124,31 @@ class MetadataQueue(Contained, CatalogQueue):
 	__repr__ = __str__
 
 	# Overriding process to handle our MetadataCatalogs
-	def process(self, ids, catalogs, limit):
+	def process(self, ids, catalogs, limit, ignore_pke=True):
 		done = 0
 		for queue in self._queues:
 			for uid, (_, event) in queue.process(limit-done).iteritems():
-				if event is REMOVED:
-					for catalog in catalogs:
-						catalog.unindex_doc(uid)
-				else:
-					ob = ids.queryObject(uid)
-					if ob is None:
-						logger.warn("Couldn't find object for %s", uid)
-					else:
+				try:
+					if event is REMOVED:
 						for catalog in catalogs:
-							if IMetadataCatalog.providedBy( catalog ):
-								catalog.force_index_doc(uid, ob )
-							else:
-								catalog.index_doc(uid, ob)
+							catalog.unindex_doc(uid)
+					else:
+						ob = ids.queryObject(uid)
+						if ob is None:
+							logger.warn("Couldn't find object for %s", uid)
+						elif IBroken.providedBy(ob):
+							logger.warn("Ignoring broken object with id %s", uid)
+						else:
+							for catalog in catalogs:
+								if IMetadataCatalog.providedBy( catalog ):
+									catalog.force_index_doc(uid, ob )
+								else:
+									catalog.index_doc(uid, ob)
+				except POSKeyError as e:
+					if ignore_pke:
+						logger.error("POSKeyError while indexing object with id %s", uid)
+					else:
+						raise e
 				done += 1
 				self._change_length(-1)
 

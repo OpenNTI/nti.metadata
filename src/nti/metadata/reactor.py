@@ -15,52 +15,53 @@ import os
 import time
 import gevent
 import random
-import functools
+from functools import partial
 
 from zope import component
 from zope import interface
 from zope.component import ComponentLookupError
 
 from ZODB import loglevels
-from ZODB.POSException import POSKeyError
+from ZODB.POSException import POSError
 from ZODB.POSException import ConflictError
 
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.zodb.interfaces import UnableToAcquireCommitLock
 
-from nti.metadata import process_queue
+from . import process_queue
+from .interfaces import IIndexReactor
+from .interfaces import DEFAULT_QUEUE_LIMIT
 
-from nti.metadata.interfaces import IIndexReactor
-from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
-
-MIN_INTERVAL = 5
+MIN_INTERVAL = 10
 MAX_INTERVAL = 60
 MIN_BATCH_SIZE = 10
+DEFAULT_WAIT_TIME = 30
 
 DEFAULT_SLEEP = 1
 DEFAULT_RETRIES = 2
 DEFAULT_INTERVAL = 30
 
-POS_KEY_ERROR_RT = -2
+POS_ERROR_RT = -2
 CONFLICT_ERROR_RT = -1
 
-def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT,
-					   use_trx_runner=True,
-					   retries=DEFAULT_RETRIES,
-					   sleep=DEFAULT_SLEEP ):
+def process_index_msgs(	ignore_pke=True,
+						use_trx_runner=True,
+						sleep=DEFAULT_SLEEP,
+						retries=DEFAULT_RETRIES,
+						limit=DEFAULT_QUEUE_LIMIT):
 
 	result = 0
 	try:
-		runner = functools.partial(process_queue, limit=limit)
+		runner = partial(process_queue, limit=limit, ignore_pke=ignore_pke)
 		if use_trx_runner:
 			trx_runner = component.getUtility(IDataserverTransactionRunner)
 			result = trx_runner(runner, retries=retries, sleep=sleep)
 		else:
 			result = runner()
-	except POSKeyError:
+	except POSError:
 		logger.exception("Cannot index object(s)")
-		result = POS_KEY_ERROR_RT
+		result = POS_ERROR_RT
 	except (UnableToAcquireCommitLock, ConflictError) as e:
 		logger.error(e)
 		result = CONFLICT_ERROR_RT
@@ -71,24 +72,21 @@ def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT,
 
 @interface.implementer(IIndexReactor)
 class MetadataIndexReactor(object):
-	# TODO This alg should be merged into nti.async.
-
-	# transaction runner
-	sleep = DEFAULT_SLEEP
-	retries = DEFAULT_RETRIES
-	# wait time
-	min_wait_time = 10
-	max_wait_time = 30
-	# batch size
-	limit = DEFAULT_QUEUE_LIMIT
-
+	
 	stop = False
 	start_time = 0
 	processor = pid = None
 
 	def __init__(self, min_time=None, max_time=None, limit=None,
-				 retries=None, sleep=None):
+				 retries=None, sleep=None, ignore_pke=True):
 
+		self.retries = retries or DEFAULT_RETRIES
+		self.limit = limit or DEFAULT_QUEUE_LIMIT
+		self.min_wait_time = min_time or MIN_INTERVAL
+		self.max_wait_time = max_time or MAX_INTERVAL
+		self.sleep = DEFAULT_SLEEP if sleep is None else sleep
+		self.ignore_pke = True if ignore_pke is None else ignore_pke
+		
 		if min_time:
 			self.min_wait_time = min_time
 
@@ -130,7 +128,8 @@ class MetadataIndexReactor(object):
 					if not self.stop:
 						result = process_index_msgs(limit=batch_size,
 												 	sleep=self.sleep,
-												 	retries=self.retries )
+												 	retries=self.retries,
+												 	ignore_pke=self.ignore_pke)
 						duration = time.time() - start
 						if result == 0: # no work
 							batch_size = self.limit  # reset to default

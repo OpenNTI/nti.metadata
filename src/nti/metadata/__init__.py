@@ -28,7 +28,7 @@ from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 from nti.metadata.interfaces import IMetadataQueueFactory
 
 def is_indexable(obj):
-	return not INoAutoIndex.providedBy( obj )
+	return not INoAutoIndex.providedBy(obj)
 
 def metadata_catalog():
 	result = component.queryUtility(IMetadataCatalog, name=CATALOG_NAME)
@@ -48,7 +48,9 @@ def queue_length(queue=None):
 		logger.error("Could not compute queue length")
 	return result
 
-def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None):
+def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
+				  ignore_pke=True):
+
 	ids = component.getUtility(zope.intid.IIntIds)
 	catalog = metadata_catalog()
 
@@ -65,6 +67,6 @@ def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None):
 	if queue_size > 0:
 		logger.info("Taking %s event(s) to process; current queue size %s",
 					to_process, queue_size)
-		queue.process(ids, (catalog,), to_process)
+		queue.process(ids, (catalog,), to_process, ignore_pke=ignore_pke)
 
 	return to_process
