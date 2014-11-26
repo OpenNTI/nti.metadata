@@ -58,6 +58,28 @@ class _ContainedPrincipalObjectsIntIds(object):
 
 @component.adapter(IUser)
 @interface.implementer(IPrincipalMetadataObjectsIntIds)
+class _FriendsListsPrincipalObjectsIntIds(object):
+
+	__slots__ = ()
+
+	def __init__(self, user):
+		self.user = user
+
+	def iter_intids(self):
+		intids = component.getUtility(zope.intid.IIntIds) 
+		for obj in self.user.friendsLists.values():
+			try:
+				if IBroken.providedBy(obj):
+					logger.warn("ignoring broken object %s", type(obj))
+				else:
+					uid = intids.queryId(obj)
+					if uid is not None:
+						yield uid
+			except (POSError):
+				logger.error("ignoring broken object %s", type(obj))
+			
+@component.adapter(IUser)
+@interface.implementer(IPrincipalMetadataObjectsIntIds)
 class _MessageInfoPrincipalObjectsIntIds(object):
 
 	__slots__ = ()
