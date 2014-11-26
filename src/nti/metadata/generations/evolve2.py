@@ -46,9 +46,13 @@ def do_evolve(context):
 				continue
 
 			for uid in user_messageinfo_iter_intids(user, intids=intids):
-				queue.add(uid)
-				total += 1
-			
+				try:
+					queue.add(uid)
+					total += 1
+				except TypeError:
+					# Object already cataloged
+					pass
+
 		logger.info('Metadata evolution %s done; %s object(s) put in queue',
 					generation, total)
 	return total
