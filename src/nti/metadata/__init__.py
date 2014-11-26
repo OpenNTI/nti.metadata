@@ -18,9 +18,9 @@ from zope.catalog.interfaces import INoAutoIndex
 
 from nti.dataserver import users
 from nti.dataserver.interfaces import IUser
-
 from nti.dataserver.interfaces import IMetadataCatalog
 from nti.dataserver.metadata_index import CATALOG_NAME
+from nti.dataserver.interfaces import IPrincipalMetadataObjectsIntIds
 
 from nti.metadata.interfaces import IMetadataQueue
 from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
@@ -70,3 +70,9 @@ def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
 		queue.process(ids, (catalog,), to_process, ignore_pke=ignore_pke)
 
 	return to_process
+
+def get_principal_metadata_objects_intids(principal):
+	predicates = component.subscribers((principal,), IPrincipalMetadataObjectsIntIds)
+	for predicate in list(predicates):
+		for uid in predicate.iter_intids():
+			yield uid
