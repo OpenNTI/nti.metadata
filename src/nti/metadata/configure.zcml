@@ -35,7 +35,10 @@
 			
 	<subscriber	factory=".predicates._MessageInfoPrincipalObjectsIntIds"
 				provides="nti.dataserver.interfaces.IPrincipalMetadataObjectsIntIds" />
-						
+		
+	<subscriber	factory=".predicates._MeetingsPrincipalObjectsIntIds"
+				provides="nti.dataserver.interfaces.IPrincipalMetadataObjectsIntIds" />
+								
 	<!-- Register our queue -->
 	<configure zcml:condition="have devmode">
 
