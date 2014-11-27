@@ -22,25 +22,7 @@ from nti.chatserver.interfaces import IUserTranscriptStorage
 from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IPrincipalMetadataObjectsIntIds
 
-def user_messageinfo_iter_intids(user, intids=None, broken=None):
-	intids = component.getUtility(zope.intid.IIntIds) if intids is None else intids
-	storage = IUserTranscriptStorage(user)
-	broken = list() if broken is None else broken
-	for transcript in storage.transcripts:
-		for message in transcript.Messages:
-			try:
-				if IBroken.providedBy(message):
-					broken.append(message)
-					logger.warn("ignoring broken object %s", type(message))
-				else:
-					uid = intids.queryId(message)
-					if uid is None:
-						logger.warn("ignoring unregistered object %s", message)
-					else:
-						yield uid
-			except (POSError):
-				broken.append(message)
-				logger.error("ignoring broken object %s", type(message))
+from .utils import user_messageinfo_iter_intids
 
 @component.adapter(IUser)
 @interface.implementer(IPrincipalMetadataObjectsIntIds)

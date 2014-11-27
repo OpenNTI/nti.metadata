@@ -20,7 +20,7 @@ from zope.component.hooks import site, setHooks
 from nti.dataserver.interfaces import IUser
 
 from .. import metadata_queue
-from ..predicates import user_messageinfo_iter_intids
+from ..utils import user_messageinfo_iter_intids
 
 def do_evolve(context):
 	setHooks()
