@@ -28,7 +28,7 @@ from .utils import user_messageinfo_iter_intids
 @interface.implementer(IPrincipalMetadataObjectsIntIds)
 class _ContainedPrincipalObjectsIntIds(object):
 
-	__slots__ = ()
+	__slots__ = ('user',)
 
 	def __init__(self, user):
 		self.user = user
@@ -42,7 +42,7 @@ class _ContainedPrincipalObjectsIntIds(object):
 @interface.implementer(IPrincipalMetadataObjectsIntIds)
 class _FriendsListsPrincipalObjectsIntIds(object):
 
-	__slots__ = ()
+	__slots__ = ('user',)
 
 	def __init__(self, user):
 		self.user = user
@@ -64,7 +64,7 @@ class _FriendsListsPrincipalObjectsIntIds(object):
 @interface.implementer(IPrincipalMetadataObjectsIntIds)
 class _MessageInfoPrincipalObjectsIntIds(object):
 
-	__slots__ = ()
+	__slots__ = ('user',)
 
 	def __init__(self, user):
 		self.user = user
@@ -77,7 +77,7 @@ class _MessageInfoPrincipalObjectsIntIds(object):
 @interface.implementer(IPrincipalMetadataObjectsIntIds)
 class _MeetingsPrincipalObjectsIntIds(object):
 
-	__slots__ = ()
+	__slots__ = ('user',)
 
 	def __init__(self, user):
 		self.user = user
