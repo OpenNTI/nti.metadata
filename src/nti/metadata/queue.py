@@ -9,7 +9,7 @@ __docformat__ = "restructuredtext en"
 logger = __import__('logging').getLogger(__name__)
 
 import pytz
-import datetime
+from datetime import datetime
 from collections import Mapping
 
 from BTrees.Length import Length
@@ -156,6 +156,6 @@ class MetadataQueue(Contained, CatalogQueue):
 				break
 
 		self.totalProcessed += done
-		self.lastProcessedTime = datetime.datetime.now(pytz.UTC)
+		self.lastProcessedTime = datetime.now(pytz.UTC)
 
 		return done
