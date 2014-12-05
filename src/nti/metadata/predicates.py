@@ -24,6 +24,21 @@ from nti.dataserver.interfaces import IPrincipalMetadataObjectsIntIds
 
 from .utils import user_messageinfo_iter_intids
 
+def get_uid(obj, intids=None):
+	intids = component.getUtility(zope.intid.IIntIds) if intids is None else intids
+	try:
+		if IBroken.providedBy(obj):
+			logger.warn("ignoring broken object %s", type(obj))
+		else:
+			uid = intids.queryId(obj)
+			if uid is None:
+				logger.warn("ignoring unregistered object %s", obj)
+			else:
+				return uid
+	except (POSError):
+		logger.error("ignoring broken object %s", type(obj))
+	return None
+
 @component.adapter(IUser)
 @interface.implementer(IPrincipalMetadataObjectsIntIds)
 class _ContainedPrincipalObjectsIntIds(object):
@@ -50,15 +65,9 @@ class _FriendsListsPrincipalObjectsIntIds(object):
 	def iter_intids(self):
 		intids = component.getUtility(zope.intid.IIntIds) 
 		for obj in self.user.friendsLists.values():
-			try:
-				if IBroken.providedBy(obj):
-					logger.warn("ignoring broken object %s", type(obj))
-				else:
-					uid = intids.queryId(obj)
-					if uid is not None:
-						yield uid
-			except (POSError):
-				logger.error("ignoring broken object %s", type(obj))
+			uid = get_uid(obj, intids=intids)
+			if uid is not None:
+				yield uid
 			
 @component.adapter(IUser)
 @interface.implementer(IPrincipalMetadataObjectsIntIds)
@@ -86,14 +95,6 @@ class _MeetingsPrincipalObjectsIntIds(object):
 		storage = IUserTranscriptStorage(self.user)
 		intids = component.getUtility(zope.intid.IIntIds) 
 		for meeting in storage.meetings:
-			try:
-				if IBroken.providedBy(meeting):
-					logger.warn("ignoring broken object %s", type(meeting))
-				else:
-					uid = intids.queryId(meeting)
-					if uid is None:
-						logger.warn("ignoring unregistered object %s", meeting)
-					else:
-						yield uid
-			except (POSError):
-				logger.error("ignoring broken object %s", type(meeting))
+			uid = get_uid(meeting, intids=intids)
+			if uid is not None:
+				yield uid
