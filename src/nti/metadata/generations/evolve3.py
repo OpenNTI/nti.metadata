@@ -57,8 +57,11 @@ def do_evolve(context):
 		for uid in sharedWithIdx.ids():
 			try:
 				obj = intids.queryObject(uid)
-				index.index_doc(uid, obj)
-				total += 1
+				if obj is not None:
+					index.index_doc(uid, obj)
+					total += 1
+				else:
+					logger.error("ignoring missing object %s", uid)
 			except POSError:
 				logger.error("ignoring broken object %s", uid)
 	
