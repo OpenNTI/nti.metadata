@@ -5,6 +5,7 @@ generation 2.
 
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
@@ -19,8 +20,8 @@ from zope.component.hooks import site, setHooks
 
 from nti.dataserver.interfaces import IUser
 
-from .. import metadata_queue
-from ..utils import user_messageinfo_iter_intids
+from nti.metadata import metadata_queue
+from nti.metadata.utils import user_messageinfo_iter_intids
 
 def do_evolve(context):
 	setHooks()
