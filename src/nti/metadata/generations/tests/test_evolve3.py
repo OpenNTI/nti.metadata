@@ -42,6 +42,11 @@ class TestEvolve3(unittest.TestCase):
 
 	@WithMockDSTrans
 	def test_evolve3(self):
+		with mock_dataserver.mock_db_trans(self.ds):
+			catalog = component.getUtility(ICatalog, name=CATALOG_NAME)
+			if IX_REVSHAREDWITH in catalog:
+				del catalog[IX_REVSHAREDWITH]
+
 		with mock_dataserver.mock_db_trans(self.ds) as connection:
 			user_1 = self._create_user('nt1@nti.com')
 			user_2 = self._create_user('nt2@nti.com')
@@ -63,7 +68,7 @@ class TestEvolve3(unittest.TestCase):
 			total = evolve3.do_evolve(context)
 			assert_that(total, is_(1))
 
-		with mock_dataserver.mock_db_trans(self.ds) as conn:
+		with mock_dataserver.mock_db_trans(self.ds):
 			catalog = component.getUtility(ICatalog, name=CATALOG_NAME)
 			assert_that(catalog, has_key(IX_REVSHAREDWITH))
 			
