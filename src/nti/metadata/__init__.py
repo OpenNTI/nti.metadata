@@ -3,11 +3,13 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+import time
 import itertools
 
 from zope import component
@@ -65,9 +67,9 @@ def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
 	limit = queue_size if limit == -1 else limit
 	to_process = min(limit, queue_size)
 	if queue_size > 0:
-		logger.info("Taking %s event(s) to process; current queue size %s",
-					to_process, queue_size)
-		queue.process(ids, (catalog,), to_process, ignore_pke=ignore_pke)
+		now = time.time()
+		done = queue.process(ids, (catalog,), to_process, ignore_pke=ignore_pke)
+		logger.info("%s event(s) processed in %s(s)", done, time.time()-now)
 
 	return to_process
 
