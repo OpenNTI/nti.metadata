@@ -18,13 +18,13 @@ import zope.intid
 from zope import component
 from zope.component.hooks import site, setHooks
 
-from ZODB.POSException import POSError
-
+from nti.dataserver.interfaces import IMetadataCatalog
+from nti.dataserver.metadata_index import CATALOG_NAME
 from nti.dataserver.metadata_index import IX_SHAREDWITH
 from nti.dataserver.metadata_index import IX_REVSHAREDWITH
 from nti.dataserver.metadata_index import RevSharedWithIndex
 
-from nti.metadata import metadata_catalog
+from nti.metadata import metadata_queue
 
 def do_evolve(context):
 	setHooks()
@@ -40,9 +40,7 @@ def do_evolve(context):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"
 
-		catalog = metadata_catalog()
-		if catalog is None:
-			return None
+		catalog = lsm.getUtility(provided=IMetadataCatalog, name=CATALOG_NAME)
 		
 		sharedWithIdx = catalog[IX_SHAREDWITH]
 		try:
@@ -54,18 +52,18 @@ def do_evolve(context):
 			index.__name__ = IX_REVSHAREDWITH
 			catalog[IX_REVSHAREDWITH] = index
 		
+		queue = metadata_queue()
+		if queue is None:
+			return None
+		
 		for uid in sharedWithIdx.ids():
 			try:
-				obj = intids.queryObject(uid)
-				if obj is not None:
-					index.index_doc(uid, obj)
-					total += 1
-				else:
-					logger.error("ignoring missing object %s", uid)
-			except POSError:
-				logger.error("ignoring broken object %s", uid)
+				queue.add(uid)
+				total += 1
+			except TypeError:
+				pass
 	
-		logger.info('Metadata evolution %s done; %s object(s) indexed',
+		logger.info('Metadata evolution %s done; %s object(s) put in queue',
 					generation, total)
 
 	return total

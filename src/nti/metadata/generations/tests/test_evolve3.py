@@ -69,5 +69,3 @@ class TestEvolve3(unittest.TestCase):
 			
 			index = catalog[IX_REVSHAREDWITH]
 			assert_that(list(index.ids()), has_length(1))
-
-			
