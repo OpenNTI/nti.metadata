@@ -24,7 +24,10 @@ from nti.dataserver.interfaces import IDataserverTransactionRunner
 from nti.dataserver.metadata_index import IX_CREATOR
 from nti.dataserver.metadata_index import IX_TAGGEDTO
 from nti.dataserver.metadata_index import IX_SHAREDWITH
+from nti.dataserver.metadata_index import IX_REVSHAREDWITH
 from nti.dataserver.metadata_index import IX_REPLIES_TO_CREATOR
+
+from nti.zope_catalog.interfaces import IKeywordIndex
 
 from . import is_indexable
 from . import metadata_queue
@@ -152,3 +155,7 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 	for uid in results.uids:
 		obj = uidutil.getObject(uid)
 		index.index_doc(uid, obj)
+	
+	index = catalog[IX_REVSHAREDWITH]
+	if IKeywordIndex.providedBy(index):
+		index.remove_words((entity.username,))
