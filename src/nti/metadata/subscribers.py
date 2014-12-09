@@ -140,6 +140,8 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 		# Not installed yet
 		return
 
+	queue = metadata_queue()
+	
 	# These we can simply remove, this creator doesn't exist anymore
 	for ix_name in (IX_REPLIES_TO_CREATOR, IX_TAGGEDTO):
 		index = catalog[ix_name]
@@ -153,8 +155,14 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 	results = catalog.searchResults(sharedWith={'all_of': (entity.username,)})
 	uidutil = results.uidutil
 	for uid in results.uids:
-		obj = uidutil.getObject(uid)
-		index.index_doc(uid, obj)
+		try:
+			if queue is not None:
+				queue.add(uid)
+			else:
+				obj = uidutil.getObject(uid)
+				index.index_doc(uid, obj)
+		except TypeError:
+			pass
 	
 	index = catalog[IX_REVSHAREDWITH]
 	if IKeywordIndex.providedBy(index):
