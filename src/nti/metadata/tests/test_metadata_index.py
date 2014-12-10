@@ -144,8 +144,7 @@ class TestMetadataIndex(DataserverLayerTest):
 
 		# Now delete the note
 		jason.deleteContainedObject( note.containerId, note.id )
-
-
+		
 		for query in ( {'repliesToCreator': {'any_of':
 											 ('greg.higgins@nextthought.com',)}},
 					   {'containerId': {'any_of':
