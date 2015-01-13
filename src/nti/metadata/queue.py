@@ -19,7 +19,7 @@ from zope.location import locate
 from zope.container.contained import Contained
 
 from ZODB.interfaces import IBroken
-from ZODB.POSException import POSKeyError
+from ZODB.POSException import POSKeyError, POSError
 
 from zc.catalogqueue.queue import CatalogQueue
 from zc.catalogqueue.CatalogEventQueue import REMOVED
@@ -144,9 +144,9 @@ class MetadataQueue(Contained, CatalogQueue):
 									catalog.force_index_doc(uid, ob )
 								else:
 									catalog.index_doc(uid, ob)
-				except POSKeyError as e:
+				except (POSKeyError, POSError), e:
 					if ignore_pke:
-						logger.error("POSKeyError while indexing object with id %s", uid)
+						logger.error("Error while indexing object with id %s", uid)
 					else:
 						raise e
 				done += 1
