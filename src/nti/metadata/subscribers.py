@@ -26,7 +26,7 @@ from nti.zope_catalog.interfaces import IKeywordIndex
 
 from . import is_indexable
 from . import metadata_queue
-from . import metadata_catalog
+from . import dataserver_metadata_catalog
 
 def query_uid( obj ):
 	intids = component.queryUtility( zope.intid.IIntIds )
@@ -93,7 +93,7 @@ def _object_modified(modeled, event):
 def delete_entity_data(username):
 	logger.info("Removing metadata data for user %s", username)
 	result = 0
-	catalog = metadata_catalog()
+	catalog = dataserver_metadata_catalog()
 	if catalog is not None:
 		username = username.lower()
 		index = catalog[IX_CREATOR]
@@ -121,12 +121,12 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 	to that user.
 	"""
 
-	catalog = metadata_catalog()
+	catalog = dataserver_metadata_catalog()
 	if catalog is None:
 		# Not installed yet
 		return
 
-	# These we can simply remove, this creator doesn't exist anymore
+	## These we can simply remove, this creator doesn't exist anymore
 	for ix_name in (IX_REPLIES_TO_CREATOR, IX_TAGGEDTO):
 		index = catalog[ix_name]
 		query = {ix_name: {'any_of': (entity.username,)} }
@@ -134,7 +134,7 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 		for uid in results.uids:
 			index.unindex_doc(uid)
 
-	# These, though, may still be shared, so we need to reindex them
+	## These, though, may still be shared, so we need to reindex them
 	index = catalog[IX_SHAREDWITH]
 	results = catalog.searchResults(sharedWith={'all_of': (entity.username,)})
 	uidutil = results.uidutil

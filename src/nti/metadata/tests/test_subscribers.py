@@ -23,7 +23,7 @@ from nti.dataserver.metadata_index import IX_CREATOR
 
 from nti.ntiids.ntiids import make_ntiid
 
-from nti.metadata import metadata_catalog
+from nti.metadata import dataserver_metadata_catalog
 from nti.metadata.subscribers import delete_entity_data
 
 import nti.dataserver.tests.mock_dataserver as mock_dataserver
@@ -62,7 +62,7 @@ class TestSubscribers(unittest.TestCase):
 			connection.add(note)
 			user.addContainedObject(note)
 			
-		catalog = metadata_catalog()
+		catalog = dataserver_metadata_catalog()
 		assert_that(catalog, is_not(none()))
 		query = {IX_CREATOR: {'any_of': (username,)} }
 		results = catalog.searchResults(**query)

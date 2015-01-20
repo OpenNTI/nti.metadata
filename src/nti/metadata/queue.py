@@ -3,6 +3,7 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
@@ -157,5 +158,4 @@ class MetadataQueue(Contained, CatalogQueue):
 
 		self.totalProcessed += done
 		self.lastProcessedTime = datetime.now(pytz.UTC)
-
 		return done

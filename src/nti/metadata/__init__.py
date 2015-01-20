@@ -12,17 +12,18 @@ logger = __import__('logging').getLogger(__name__)
 import time
 import itertools
 
-from zope import component
-
 import zope.intid
 
+from zope import component
 from zope.catalog.interfaces import INoAutoIndex
 
 from nti.dataserver import users
+
 from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IMetadataCatalog
-from nti.dataserver.metadata_index import CATALOG_NAME
 from nti.dataserver.interfaces import IPrincipalMetadataObjectsIntIds
+
+from nti.dataserver.metadata_index import CATALOG_NAME
 
 from nti.metadata.interfaces import IMetadataQueue
 from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
@@ -32,7 +33,11 @@ from nti.metadata.interfaces import IMetadataQueueFactory
 def is_indexable(obj):
 	return not INoAutoIndex.providedBy(obj)
 
-def metadata_catalog():
+def metadata_catalogs():
+	result = [catalog for _, catalog in component.getUtilitiesFor(IMetadataCatalog)]
+	return result
+
+def dataserver_metadata_catalog():
 	result = component.queryUtility(IMetadataCatalog, name=CATALOG_NAME)
 	return result
 
@@ -54,10 +59,8 @@ def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
 				  ignore_pke=True):
 
 	ids = component.getUtility(zope.intid.IIntIds)
-	catalog = metadata_catalog()
-
-	if queue is None:
-		queue = metadata_queue()
+	catalogs = metadata_catalogs()
+	queue = metadata_queue() if queue is None else queue
 
 	# Sync the queue if we have multiple instances running.
 	if sync_queue and queue.syncQueue():
@@ -68,7 +71,7 @@ def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
 	to_process = min(limit, queue_size)
 	if queue_size > 0:
 		now = time.time()
-		done = queue.process(ids, (catalog,), to_process, ignore_pke=ignore_pke)
+		done = queue.process(ids, catalogs, to_process, ignore_pke=ignore_pke)
 		queue_size = max(0, queue_size-done)
 		logger.info("%s event(s) processed in %s(s). Queue size %s", done, 
 					time.time()-now, queue_size)
