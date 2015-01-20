@@ -3,23 +3,18 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
-
-import gevent
-from functools import partial
 
 import zope.intid
 
 from zope import component
 from zope.lifecycleevent import IObjectRemovedEvent
 
-import transaction
-
 from nti.dataserver.interfaces import IEntity
-from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.dataserver.metadata_index import IX_CREATOR
 from nti.dataserver.metadata_index import IX_TAGGEDTO
@@ -112,16 +107,7 @@ def delete_entity_data(username):
 @component.adapter(IEntity, IObjectRemovedEvent)
 def _on_entity_removed(entity, event):
 	username = entity.username
-	def _process_event():
-		transaction_runner = \
-			component.getUtility(IDataserverTransactionRunner)
-		func = partial(delete_entity_data, username=username)
-		transaction_runner(func)
-		return True
-
-	transaction.get().addAfterCommitHook(
-					lambda success: success and gevent.spawn(_process_event))
-
+	delete_entity_data(username)
 
 @component.adapter(IEntity, IObjectRemovedEvent)
 def clear_replies_to_creator_when_creator_removed(entity, event):
