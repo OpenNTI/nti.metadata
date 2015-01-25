@@ -33,6 +33,6 @@ def user_messageinfo_iter_intids(user, intids=None, broken=None):
                         logger.warn("ignoring unregistered object %s", message)
                     else:
                         yield uid
-            except (POSError):
+            except (TypeError, POSError):
                 broken.append(message)
                 logger.error("ignoring broken object %s", type(message))
