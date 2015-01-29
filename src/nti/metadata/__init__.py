@@ -100,7 +100,13 @@ def get_principal_metadata_objects(principal):
 	predicates = component.subscribers((principal,), IPrincipalMetadataObjects)
 	for predicate in list(predicates):
 		for obj in predicate.iter_objects():
-			yield obj
+			try:
+				if IBroken.providedBy(obj):
+					logger.warn("ignoring broken object %s", type(obj))
+				else:
+					yield obj
+			except (TypeError, POSError):
+				logger.error("ignoring broken object %s", type(obj))
 			
 def get_principal_metadata_objects_intids(principal):
 	intids = component.getUtility(zope.intid.IIntIds) 
