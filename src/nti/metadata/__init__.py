@@ -95,6 +95,7 @@ def get_uid(obj, intids=None):
 	except (TypeError, POSError):
 		logger.error("ignoring broken object %s", type(obj))
 	return None
+get_iid = get_uid # alias
 
 def get_principal_metadata_objects(principal):
 	predicates = component.subscribers((principal,), IPrincipalMetadataObjects)
