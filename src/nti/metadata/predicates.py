@@ -20,7 +20,7 @@ from nti.dataserver.interfaces import IPrincipalMetadataObjects
 
 from .utils import user_messageinfo_iter_objects
 
-from . import get_uid
+from . import get_iid
 
 @interface.implementer(IIntIdIterable, IPrincipalMetadataObjects)
 class BasePrincipalObjects(object):
@@ -29,9 +29,11 @@ class BasePrincipalObjects(object):
 		self.user = user
 		
 	def iter_intids(self, intids=None):
+		seen = set()
 		for obj in self.iter_objects():
-			uid = get_uid(obj, intids=intids)
-			if uid is not None:
+			uid = get_iid(obj, intids=intids)
+			if uid is not None and uid not in seen:
+				seen.add(uid)
 				yield uid 
 			
 	def iter_objects(self):
@@ -42,8 +44,8 @@ class _ContainedPrincipalObjects(BasePrincipalObjects):
 
 	def iter_objects(self):
 		user = self.user
-		for uid in user.iter_objects(only_ntiid_containers=True):
-			yield uid
+		for obj in user.iter_objects(only_ntiid_containers=True):
+			yield obj
 
 @component.adapter(IUser)
 class _FriendsListsPrincipalObjects(BasePrincipalObjects):
@@ -57,8 +59,8 @@ class _FriendsListsPrincipalObjects(BasePrincipalObjects):
 class _MessageInfoPrincipalObjects(BasePrincipalObjects):
 
 	def iter_objects(self):
-		for uid in user_messageinfo_iter_objects(self.user):
-			yield uid
+		for obj in user_messageinfo_iter_objects(self.user):
+			yield obj
 
 @component.adapter(IUser)
 class _MeetingPrincipalObjects(BasePrincipalObjects):
