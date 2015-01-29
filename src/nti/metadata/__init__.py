@@ -17,11 +17,14 @@ import zope.intid
 from zope import component
 from zope.catalog.interfaces import INoAutoIndex
 
+from ZODB.interfaces import IBroken
+from ZODB.POSException import POSError
+
 from nti.dataserver import users
 
 from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IMetadataCatalog
-from nti.dataserver.interfaces import IPrincipalMetadataObjectsIntIds
+from nti.dataserver.interfaces import IPrincipalMetadataObjects
 
 from nti.dataserver.metadata_index import CATALOG_NAME
 
@@ -78,8 +81,30 @@ def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
 
 	return to_process
 
-def get_principal_metadata_objects_intids(principal):
-	predicates = component.subscribers((principal,), IPrincipalMetadataObjectsIntIds)
+def get_uid(obj, intids=None):
+	intids = component.getUtility(zope.intid.IIntIds) if intids is None else intids
+	try:
+		if IBroken.providedBy(obj):
+			logger.warn("ignoring broken object %s", type(obj))
+		else:
+			uid = intids.queryId(obj)
+			if uid is None:
+				logger.warn("ignoring unregistered object %s", obj)
+			else:
+				return uid
+	except (TypeError, POSError):
+		logger.error("ignoring broken object %s", type(obj))
+	return None
+
+def get_principal_metadata_objects(principal):
+	predicates = component.subscribers((principal,), IPrincipalMetadataObjects)
 	for predicate in list(predicates):
-		for uid in predicate.iter_intids():
+		for obj in predicate.iter_objects():
+			yield obj
+			
+def get_principal_metadata_objects_intids(principal):
+	intids = component.getUtility(zope.intid.IIntIds) 
+	for obj in get_principal_metadata_objects(principal):
+		uid = get_uid(obj, intids=intids)
+		if uid is not None: 
 			yield uid

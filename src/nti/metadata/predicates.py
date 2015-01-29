@@ -9,92 +9,61 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-import zope.intid
-
 from zope import component
 from zope import interface
-
-from ZODB.interfaces import IBroken
-from ZODB.POSException import POSError
 
 from nti.chatserver.interfaces import IUserTranscriptStorage
 
 from nti.dataserver.interfaces import IUser
-from nti.dataserver.interfaces import IPrincipalMetadataObjectsIntIds
+from nti.dataserver.interfaces import IIntIdIterable
+from nti.dataserver.interfaces import IPrincipalMetadataObjects
 
-from .utils import user_messageinfo_iter_intids
+from .utils import user_messageinfo_iter_objects
 
-def get_uid(obj, intids=None):
-	intids = component.getUtility(zope.intid.IIntIds) if intids is None else intids
-	try:
-		if IBroken.providedBy(obj):
-			logger.warn("ignoring broken object %s", type(obj))
-		else:
-			uid = intids.queryId(obj)
-			if uid is None:
-				logger.warn("ignoring unregistered object %s", obj)
-			else:
-				return uid
-	except (TypeError, POSError):
-		logger.error("ignoring broken object %s", type(obj))
-	return None
+from . import get_uid
 
-@component.adapter(IUser)
-@interface.implementer(IPrincipalMetadataObjectsIntIds)
-class _ContainedPrincipalObjectsIntIds(object):
-
-	__slots__ = ('user',)
-
-	def __init__(self, user):
+@interface.implementer(IIntIdIterable, IPrincipalMetadataObjects)
+class BasePrincipalObjects(object):
+	
+	def __init__(self, user=None, *args, **kwargs):
 		self.user = user
-
-	def iter_intids(self):
-		user = self.user
-		for uid in user.iter_intids(only_ntiid_containers=True):
-			yield uid
-
-@component.adapter(IUser)
-@interface.implementer(IPrincipalMetadataObjectsIntIds)
-class _FriendsListsPrincipalObjectsIntIds(object):
-
-	__slots__ = ('user',)
-
-	def __init__(self, user):
-		self.user = user
-
-	def iter_intids(self):
-		intids = component.getUtility(zope.intid.IIntIds) 
-		for obj in self.user.friendsLists.values():
+		
+	def iter_intids(self, intids=None):
+		for obj in self.iter_objects():
 			uid = get_uid(obj, intids=intids)
 			if uid is not None:
-				yield uid
+				yield uid 
 			
+	def iter_objects(self):
+		raise NotImplementedError()
+
 @component.adapter(IUser)
-@interface.implementer(IPrincipalMetadataObjectsIntIds)
-class _MessageInfoPrincipalObjectsIntIds(object):
+class _ContainedPrincipalObjects(BasePrincipalObjects):
 
-	__slots__ = ('user',)
-
-	def __init__(self, user):
-		self.user = user
-
-	def iter_intids(self):
-		for uid in user_messageinfo_iter_intids(self.user):
+	def iter_objects(self):
+		user = self.user
+		for uid in user.iter_objects(only_ntiid_containers=True):
 			yield uid
 
 @component.adapter(IUser)
-@interface.implementer(IPrincipalMetadataObjectsIntIds)
-class _MeetingsPrincipalObjectsIntIds(object):
+class _FriendsListsPrincipalObjects(BasePrincipalObjects):
 
-	__slots__ = ('user',)
+	def iter_objects(self):
+		for obj in self.user.friendsLists.values():
+			yield obj
+			
+@component.adapter(IUser)
+@interface.implementer(IPrincipalMetadataObjects)
+class _MessageInfoPrincipalObjects(BasePrincipalObjects):
 
-	def __init__(self, user):
-		self.user = user
+	def iter_objects(self):
+		for uid in user_messageinfo_iter_objects(self.user):
+			yield uid
 
-	def iter_intids(self):
+@component.adapter(IUser)
+class _MeetingPrincipalObjects(BasePrincipalObjects):
+
+	def iter_objects(self):
 		storage = IUserTranscriptStorage(self.user)
-		intids = component.getUtility(zope.intid.IIntIds) 
 		for meeting in storage.meetings:
-			uid = get_uid(meeting, intids=intids)
-			if uid is not None:
-				yield uid
+			yield meeting

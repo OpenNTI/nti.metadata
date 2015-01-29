@@ -29,17 +29,17 @@
 	<subscriber handler=".subscribers._on_entity_removed" />
 	<subscriber handler=".subscribers.clear_replies_to_creator_when_creator_removed" />
 
-	<subscriber	factory=".predicates._ContainedPrincipalObjectsIntIds"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjectsIntIds" />
+	<subscriber	factory=".predicates._ContainedPrincipalObjects"
+				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
 		
-	<subscriber	factory=".predicates._FriendsListsPrincipalObjectsIntIds"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjectsIntIds" />
+	<subscriber	factory=".predicates._FriendsListsPrincipalObjects"
+				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
 					
-	<subscriber	factory=".predicates._MessageInfoPrincipalObjectsIntIds"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjectsIntIds" />
+	<subscriber	factory=".predicates._MessageInfoPrincipalObjects"
+				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
 		
-	<subscriber	factory=".predicates._MeetingsPrincipalObjectsIntIds"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjectsIntIds" />
+	<subscriber	factory=".predicates._MeetingPrincipalObjects"
+				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
 								
 	<!-- Register our queue -->
 	<configure zcml:condition="have devmode">

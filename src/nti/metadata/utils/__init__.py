@@ -3,22 +3,20 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
-
-import zope.intid
-
-from zope import component
 
 from ZODB.interfaces import IBroken
 from ZODB.POSException import POSError
 
 from nti.chatserver.interfaces import IUserTranscriptStorage
 
-def user_messageinfo_iter_intids(user, intids=None, broken=None):
-    intids = component.getUtility(zope.intid.IIntIds) if intids is None else intids
+from .. import get_uid
+
+def user_messageinfo_iter_objects(user, broken=None):
     storage = IUserTranscriptStorage(user)
     broken = list() if broken is None else broken
     for transcript in storage.transcripts:
@@ -27,12 +25,18 @@ def user_messageinfo_iter_intids(user, intids=None, broken=None):
                 if IBroken.providedBy(message):
                     broken.append(message)
                     logger.warn("ignoring broken object %s", type(message))
-                else:
-                    uid = intids.queryId(message)
-                    if uid is None:
-                        logger.warn("ignoring unregistered object %s", message)
-                    else:
-                        yield uid
+                yield message
             except (TypeError, POSError):
                 broken.append(message)
                 logger.error("ignoring broken object %s", type(message))
+                
+def user_messageinfo_iter_intids(user, intids=None, broken=None):
+    broken = list() if broken is None else broken
+    for message in user_messageinfo_iter_objects(user, broken=broken):
+        try:
+            uid = get_uid(message, intids=intids)
+            if uid is not None:
+                yield uid
+        except (TypeError, POSError):
+            broken.append(message)
+            logger.error("ignoring broken object %s", type(message))
