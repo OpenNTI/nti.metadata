@@ -102,7 +102,9 @@ def get_principal_metadata_objects(principal):
 	for predicate in list(predicates):
 		for obj in predicate.iter_objects():
 			try:
-				if IBroken.providedBy(obj):
+				if obj is None:
+					continue
+				elif IBroken.providedBy(obj):
 					logger.warn("ignoring broken object %s", type(obj))
 				else:
 					yield obj
