@@ -10,7 +10,6 @@ __docformat__ = "restructuredtext en"
 logger = __import__('logging').getLogger(__name__)
 
 import time
-import itertools
 
 import zope.intid
 
@@ -86,7 +85,7 @@ def get_uid(obj, intids=None):
 	try:
 		if IBroken.providedBy(obj):
 			logger.warn("ignoring broken object %s", type(obj))
-		else:
+		elif obj is not None:
 			uid = intids.queryId(obj)
 			if uid is None:
 				logger.warn("ignoring unregistered object %s", obj)
