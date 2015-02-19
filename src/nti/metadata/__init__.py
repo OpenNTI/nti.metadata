@@ -19,17 +19,12 @@ from zope.catalog.interfaces import INoAutoIndex
 from ZODB.interfaces import IBroken
 from ZODB.POSException import POSError
 
-from nti.dataserver import users
-
-from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IMetadataCatalog
 from nti.dataserver.interfaces import IPrincipalMetadataObjects
 
 from nti.dataserver.metadata_index import CATALOG_NAME
 
-from nti.metadata.interfaces import IMetadataQueue
 from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
-
 from nti.metadata.interfaces import IMetadataQueueFactory
 
 def is_indexable(obj):
