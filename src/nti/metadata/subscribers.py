@@ -138,7 +138,8 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 	index = catalog[IX_SHAREDWITH]
 	results = catalog.searchResults(sharedWith={'all_of': (entity.username,)})
 	uidutil = results.uidutil
-	for uid in results.uids:
+	uids = list(results.uids or ())
+	for uid in uids:
 		obj = uidutil.getObject(uid)
 		index.index_doc(uid, obj)
 	
