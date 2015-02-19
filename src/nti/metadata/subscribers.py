@@ -137,11 +137,12 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 	## These, though, may still be shared, so we need to reindex them
 	index = catalog[IX_SHAREDWITH]
 	results = catalog.searchResults(sharedWith={'all_of': (entity.username,)})
-	uidutil = results.uidutil
+	intid_util = results.uidutil
 	uids = list(results.uids or ())
 	for uid in uids:
-		obj = uidutil.getObject(uid)
-		index.index_doc(uid, obj)
+		obj = intid_util.queryObject(uid)
+		if obj is not None:
+			index.index_doc(uid, obj)
 	
 	index = catalog[IX_REVSHAREDWITH]
 	if IKeywordIndex.providedBy(index):
