@@ -3,13 +3,11 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
-
-from nti.monkey import relstorage_patch_all_except_gevent_on_import
-relstorage_patch_all_except_gevent_on_import.patch()
 
 import os
 import time
@@ -38,12 +36,12 @@ MAX_INTERVAL = 60
 MIN_BATCH_SIZE = 10
 DEFAULT_WAIT_TIME = 30
 
+POS_ERROR_RT = -2
+CONFLICT_ERROR_RT = -1
+
 DEFAULT_SLEEP = 1
 DEFAULT_RETRIES = 2
 DEFAULT_INTERVAL = 30
-
-POS_ERROR_RT = -2
-CONFLICT_ERROR_RT = -1
 
 def process_index_msgs(	ignore_pke=True,
 						use_trx_runner=True,

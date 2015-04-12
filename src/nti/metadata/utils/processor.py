@@ -16,22 +16,17 @@ import signal
 import argparse
 
 import zope.exceptions
-import zope.browserpage
 
 from zope import component
 
 from ZODB.interfaces import IDatabase
 
-from zope.container.contained import Contained
-from zope.configuration import xmlconfig, config
-from zope.dottedname import resolve as dottedname
-
-from z3c.autoinclude.zcml import includePluginsDirective
-
 from nti.contentlibrary.interfaces import IContentPackageLibrary
 
 from nti.dataserver.utils import open_all_databases
 from nti.dataserver.utils import run_with_dataserver
+from nti.dataserver.utils.base_script import set_site
+from nti.dataserver.utils.base_script import create_context
 
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
@@ -54,21 +49,12 @@ def handler(*args):
 signal.signal(signal.SIGTERM, handler)
 signal.signal(signal.SIGINT, sigint_handler)
 
-# package loader info
-
-class PluginPoint(Contained):
-
-	def __init__(self, name):
-		self.__name__ = name
-
-PP_APP = PluginPoint('nti.app')
-PP_APP_SITES = PluginPoint('nti.app.sites')
-PP_APP_PRODUCTS = PluginPoint('nti.app.products')
-
 def main():
 	arg_parser = argparse.ArgumentParser(description="Metadata processor")
 	arg_parser.add_argument('-v', '--verbose', help="Be verbose", action='store_true',
 							 dest='verbose')
+	arg_parser.add_argument('--site', dest='site', 
+							help="Application SITE.")
 	arg_parser.add_argument('-r', '--retries',
 							 dest='retries',
 							 help="Transaction runner retries",
@@ -103,7 +89,7 @@ def main():
 	if not env_dir or not os.path.exists(env_dir) and not os.path.isdir(env_dir):
 		raise IOError("Invalid dataserver environment root directory")
 
-	context = _create_context(env_dir)
+	context = create_context(env_dir, with_library=True)
 	conf_packages = ( 'nti.appserver', 'nti.metadata' )
 
 	run_with_dataserver(environment_dir=env_dir,
@@ -113,36 +99,6 @@ def main():
 						minimal_ds=True,
 						use_transaction_runner=False,
 						function=lambda: _process_args(args))
-
-def _create_context(env_dir):
-	etc = os.getenv('DATASERVER_ETC_DIR') or os.path.join(env_dir, 'etc')
-	etc = os.path.expanduser(etc)
-
-	context = config.ConfigurationMachine()
-	xmlconfig.registerCommonDirectives(context)
-
-	slugs = os.path.join(etc, 'package-includes')
-	if os.path.exists(slugs) and os.path.isdir(slugs):
-		package = dottedname.resolve('nti.dataserver')
-		context = xmlconfig.file('configure.zcml', package=package, context=context)
-		xmlconfig.include(context, files=os.path.join(slugs, '*.zcml'),
-						  package='nti.appserver')
-
-	library_zcml = os.path.join(etc, 'library.zcml')
-	if not os.path.exists(library_zcml):
-		raise Exception("Could not locate library zcml file %s", library_zcml)
-	xmlconfig.include( context, file=library_zcml, package='nti.appserver' )
-
-	# Include zope.browserpage.meta.zcm for tales:expressiontype
-	# before including the products
-	xmlconfig.include(context, file="meta.zcml", package=zope.browserpage)
-
-	# include plugins
-	includePluginsDirective(context, PP_APP)
-	includePluginsDirective(context, PP_APP_SITES)
-	includePluginsDirective(context, PP_APP_PRODUCTS)
-
-	return context
 
 def _load_library():
 	library = component.queryUtility(IContentPackageLibrary)
@@ -177,9 +133,12 @@ def _process_args(args):
 	db = component.getUtility(IDatabase)
 	open_all_databases(db, close_children=False)
 	
+	## load all libraries
 	transaction_runner = component.getUtility(IDataserverTransactionRunner)
 	transaction_runner(_load_library)
 
+	## set site if available
+	set_site(args.site)
 	target = MetadataIndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
 						  		  retries=retries, sleep=sleep, ignore_pke=ignore_pke)
 	result = target(time.sleep)
