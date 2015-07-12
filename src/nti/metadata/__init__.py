@@ -79,7 +79,7 @@ def get_uid(obj, intids=None):
 	if not isBroken(obj):
 		uid = intids.queryId(obj)
 		if uid is None:
-			logger.warn("ignoring unregistered object %s", obj)
+			logger.warn("Ignoring unregistered object %s", obj)
 		else:
 			return uid
 	return None
