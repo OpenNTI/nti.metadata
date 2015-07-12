@@ -9,10 +9,9 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-from ZODB.interfaces import IBroken
-from ZODB.POSException import POSError
-
 from nti.chatserver.interfaces import IUserTranscriptStorage
+
+from nti.zodb import isBroken
 
 from .. import get_iid
 
@@ -21,23 +20,13 @@ def user_messageinfo_iter_objects(user, broken=None):
 	broken = list() if broken is None else broken
 	for transcript in storage.transcripts:
 		for message in transcript.Messages:
-			try:
-				if IBroken.providedBy(message):
-					broken.append(message)
-					logger.warn("ignoring broken object %s", type(message))
-				else:
-					yield message
-			except (TypeError, POSError):
+			if isBroken(message):
 				broken.append(message)
-				logger.error("ignoring broken object %s", type(message))
+			else:
+				yield message
 				
 def user_messageinfo_iter_intids(user, intids=None, broken=None):
-	broken = list() if broken is None else broken
 	for message in user_messageinfo_iter_objects(user, broken=broken):
-		try:
-			uid = get_iid(message, intids=intids)
-			if uid is not None:
-				yield uid
-		except (TypeError, POSError):
-			broken.append(message)
-			logger.error("ignoring broken object %s", type(message))
+		uid = get_iid(message, intids=intids)
+		if uid is not None:
+			yield uid

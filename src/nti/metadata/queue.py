@@ -9,18 +9,21 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-import pytz
 from datetime import datetime
 from collections import Mapping
+
+import pytz
 
 from BTrees.Length import Length
 
 from zope import interface
-from zope.location import locate
+
 from zope.container.contained import Contained
 
+from zope.location import locate
+
 from ZODB.interfaces import IBroken
-from ZODB.POSException import POSKeyError, POSError
+from ZODB.POSException import POSError
 
 from zc.catalogqueue.queue import CatalogQueue
 from zc.catalogqueue.CatalogEventQueue import REMOVED
@@ -145,7 +148,7 @@ class MetadataQueue(Contained, CatalogQueue):
 									catalog.force_index_doc(uid, ob )
 								else:
 									catalog.index_doc(uid, ob)
-				except (POSKeyError, POSError), e:
+				except (POSError), e:
 					if ignore_pke:
 						logger.error("Error while indexing object with id %s", uid)
 					else:

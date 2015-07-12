@@ -17,6 +17,7 @@ from functools import partial
 
 from zope import component
 from zope import interface
+
 from zope.component import ComponentLookupError
 
 from ZODB import loglevels
@@ -27,9 +28,10 @@ from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.zodb.interfaces import UnableToAcquireCommitLock
 
-from . import process_queue
 from .interfaces import IIndexReactor
 from .interfaces import DEFAULT_QUEUE_LIMIT
+
+from . import process_queue
 
 MIN_INTERVAL = 10
 MAX_INTERVAL = 60

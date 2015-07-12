@@ -24,18 +24,18 @@ from . import get_iid
 
 @interface.implementer(IIntIdIterable, IPrincipalMetadataObjects)
 class BasePrincipalObjects(object):
-	
+
 	def __init__(self, user=None, *args, **kwargs):
 		self.user = user
-		
+
 	def iter_intids(self, intids=None):
 		seen = set()
 		for obj in self.iter_objects():
 			uid = get_iid(obj, intids=intids)
 			if uid is not None and uid not in seen:
 				seen.add(uid)
-				yield uid 
-			
+				yield uid
+
 	def iter_objects(self):
 		raise NotImplementedError()
 
@@ -53,7 +53,7 @@ class _FriendsListsPrincipalObjects(BasePrincipalObjects):
 	def iter_objects(self):
 		for obj in self.user.friendsLists.values():
 			yield obj
-			
+
 @component.adapter(IUser)
 @interface.implementer(IPrincipalMetadataObjects)
 class _MessageInfoPrincipalObjects(BasePrincipalObjects):

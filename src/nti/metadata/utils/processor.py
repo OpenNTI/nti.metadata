@@ -53,7 +53,7 @@ def main():
 	arg_parser = argparse.ArgumentParser(description="Metadata processor")
 	arg_parser.add_argument('-v', '--verbose', help="Be verbose", action='store_true',
 							 dest='verbose')
-	arg_parser.add_argument('--site', dest='site', 
+	arg_parser.add_argument('--site', dest='site',
 							help="Application SITE.")
 	arg_parser.add_argument('-r', '--retries',
 							 dest='retries',
@@ -80,7 +80,7 @@ def main():
 							 help="Queue limit",
 							 type=int,
 							 default=DEFAULT_QUEUE_LIMIT)
-	arg_parser.add_argument('--pke', help="Don't ignore POSKeyError", 
+	arg_parser.add_argument('--pke', help="Don't ignore POSKeyError",
 							 action='store_true',
 							 dest='allow_pke')
 
@@ -90,7 +90,7 @@ def main():
 		raise IOError("Invalid dataserver environment root directory")
 
 	context = create_context(env_dir, with_library=True)
-	conf_packages = ( 'nti.appserver', 'nti.metadata' )
+	conf_packages = ('nti.appserver', 'nti.metadata')
 
 	run_with_dataserver(environment_dir=env_dir,
 						xmlconfig_packages=conf_packages,
@@ -121,23 +121,23 @@ def _process_args(args):
 	sleep = args.sleep
 	assert sleep >= 0 and sleep <= 10
 
-	ignore_pke = not args.allow_pke 
+	ignore_pke = not args.allow_pke
 	mintime = max(min(mintime, MAX_INTERVAL), MIN_INTERVAL)
 	maxtime = max(min(maxtime, MAX_INTERVAL), MIN_INTERVAL)
 
 	ei = '%(asctime)s %(levelname)-5.5s [%(name)s][%(thread)d][%(threadName)s] %(message)s'
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
 
-	## open connections to all databases
-	## so they can be recycled in the connection pool
+	# # open connections to all databases
+	# # so they can be recycled in the connection pool
 	db = component.getUtility(IDatabase)
 	open_all_databases(db, close_children=False)
-	
-	## load all libraries
+
+	# # load all libraries
 	transaction_runner = component.getUtility(IDataserverTransactionRunner)
 	transaction_runner(_load_library)
 
-	## set site if available
+	# # set site if available
 	set_site(args.site)
 	target = MetadataIndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
 						  		  retries=retries, sleep=sleep, ignore_pke=ignore_pke)

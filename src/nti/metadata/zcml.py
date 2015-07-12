@@ -11,8 +11,9 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-from zope import interface
 from zope import component
+from zope import interface
+
 from zope.component.zcml import utility
 
 from nti.metadata import process_queue
@@ -24,31 +25,31 @@ from nti.metadata.interfaces import IMetadataQueueFactory
 class ImmediateQueueRunner(object):
 
 	buckets = 1
-	
-	def add( self, val ):
+
+	def add(self, val):
 		# Process immediately
 		queue = component.queryUtility(IMetadataQueue)
 		if queue is not None:
-			queue.add( val )
-			process_queue( queue=queue )
+			queue.add(val)
+			process_queue(queue=queue)
 
 	def update(self, val):
 		queue = component.queryUtility(IMetadataQueue)
 		if queue is not None:
-			queue.update( val )
-			process_queue( queue=queue )
+			queue.update(val)
+			process_queue(queue=queue)
 
 	def remove(self, val):
 		queue = component.queryUtility(IMetadataQueue)
 		if queue is not None:
-			queue.remove( val )
-			process_queue( queue=queue )
-			
+			queue.remove(val)
+			process_queue(queue=queue)
+
 	def syncQueue(self):
 		queue = component.queryUtility(IMetadataQueue)
 		if queue is not None:
 			queue.syncQueue()
-		
+
 	def eventQueueLength(self):
 		return len(self)
 
@@ -59,8 +60,8 @@ class ImmediateQueueRunner(object):
 		queue = component.queryUtility(IMetadataQueue)
 		if queue is not None:
 			return queue[idx]
-		raise IndexError()		
-		
+		raise IndexError()
+
 	def __len__(self):
 		queue = component.queryUtility(IMetadataQueue)
 		if queue is not None:
@@ -71,25 +72,25 @@ class ImmediateQueueRunner(object):
 class _ImmediateQueueFactory(object):
 
 	__slots__ = ()
-	
-	def get_queue( self ):
+
+	def get_queue(self):
 		return ImmediateQueueRunner()
 
 @interface.implementer(IMetadataQueueFactory)
 class _ProcessingQueueFactory(object):
 
 	__slots__ = ()
-	
-	def get_queue( self ):
+
+	def get_queue(self):
 		queue = component.queryUtility(IMetadataQueue)
 		return queue
 
 def registerImmediateProcessingQueue(_context):
-	logger.info( "Registering immediate processing queue" )
+	logger.info("Registering immediate processing queue")
 	factory = _ImmediateQueueFactory()
-	utility( _context, provides=IMetadataQueueFactory, component=factory)
+	utility(_context, provides=IMetadataQueueFactory, component=factory)
 
 def registerProcessingQueue(_context):
-	logger.info( "Registering processing queue" )
+	logger.info("Registering processing queue")
 	factory = _ProcessingQueueFactory()
-	utility( _context, provides=IMetadataQueueFactory, component=factory)
+	utility(_context, provides=IMetadataQueueFactory, component=factory)

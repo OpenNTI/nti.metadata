@@ -12,6 +12,7 @@ logger = __import__('logging').getLogger(__name__)
 import zope.intid
 
 from zope import component
+
 from zope.lifecycleevent import IObjectRemovedEvent
 
 from nti.dataserver.interfaces import IEntity
@@ -28,13 +29,13 @@ from . import is_indexable
 from . import metadata_queue
 from . import dataserver_metadata_catalog
 
-def query_uid( obj ):
-	intids = component.queryUtility( zope.intid.IIntIds )
-	result = getattr( obj, '_ds_intid', None )
-	## Fall back to our utility if we need to.
-	## Extremely slow if we do __len__
+def query_uid(obj):
+	intids = component.queryUtility(zope.intid.IIntIds)
+	result = getattr(obj, '_ds_intid', None)
+	# Fall back to our utility if we need to.
+	# Extremely slow if we do __len__
 	if result is None and intids is not None:
-		result = intids.queryId( obj )
+		result = intids.queryId(obj)
 	return result
 
 def add_2_queue(obj):
@@ -101,9 +102,9 @@ def delete_entity_data(username):
 		results = catalog.searchResults(**query)
 		for uid in results.uids:
 			index.unindex_doc(uid)
-			result +=1
+			result += 1
 	return result
-	
+
 @component.adapter(IEntity, IObjectRemovedEvent)
 def _on_entity_removed(entity, event):
 	username = entity.username
@@ -126,7 +127,7 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 		# Not installed yet
 		return
 
-	## These we can simply remove, this creator doesn't exist anymore
+	# These we can simply remove, this creator doesn't exist anymore
 	for ix_name in (IX_REPLIES_TO_CREATOR, IX_TAGGEDTO):
 		index = catalog[ix_name]
 		query = {ix_name: {'any_of': (entity.username,)} }
@@ -134,7 +135,7 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 		for uid in results.uids:
 			index.unindex_doc(uid)
 
-	## These, though, may still be shared, so we need to reindex them
+	# These, though, may still be shared, so we need to reindex them
 	index = catalog[IX_SHAREDWITH]
 	results = catalog.searchResults(sharedWith={'all_of': (entity.username,)})
 	intid_util = results.uidutil
@@ -143,7 +144,7 @@ def clear_replies_to_creator_when_creator_removed(entity, event):
 		obj = intid_util.queryObject(uid)
 		if obj is not None:
 			index.index_doc(uid, obj)
-	
+
 	index = catalog[IX_REVSHAREDWITH]
 	if IKeywordIndex.providedBy(index):
 		index.remove_words((entity.username,))
