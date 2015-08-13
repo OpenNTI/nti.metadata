@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-generation 2.
+generation 4.
 
 .. $Id$
 """
@@ -11,56 +11,53 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-generation = 2
+generation = 4
 
 from zope import component
 
 from zope.component.hooks import site, setHooks
 
-from zope.intid import IIntIds
+from nti.dataserver.interfaces import IMetadataCatalog
 
-from nti.dataserver.interfaces import IUser
+from nti.dataserver.metadata_index import IX_MIMETYPE
+from nti.dataserver.metadata_index import CATALOG_NAME
 
 from nti.metadata import metadata_queue
-from nti.metadata.utils import user_messageinfo_iter_intids
 
-def do_evolve(context):
+PERSONAL_BLOG_ENTRY_POST = 'application/vnd.nextthought.forums.personalblogentrypost'
+
+def do_evolve(context, generation=generation):
 	setHooks()
 	conn = context.connection
 	root = conn.root()
 	ds_folder = root['nti.dataserver']
 
 	lsm = ds_folder.getSiteManager()
-	intids = lsm.getUtility(IIntIds)
 
 	total = 0
 	with site(ds_folder):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"
 
+		catalog = lsm.getUtility(provided=IMetadataCatalog, name=CATALOG_NAME)
+		doc_ids  = catalog[IX_MIMETYPE].apply( {'any_of': (PERSONAL_BLOG_ENTRY_POST,)} )
+	
 		queue = metadata_queue()
-		if queue is None:
-			return total
-
-		users = ds_folder['users']
-		for user in users.values():
-			if not IUser.providedBy(user):
-				continue
-
-			for uid in user_messageinfo_iter_intids(user, intids=intids):
+		if queue is not None:
+			for uid in doc_ids or ():
 				try:
 					queue.add(uid)
 					total += 1
 				except TypeError:
-					# Object already cataloged
 					pass
 
 		logger.info('Metadata evolution %s done; %s object(s) put in queue',
 					generation, total)
+
 	return total
 
 def evolve(context):
 	"""
-	Evolve to generation 2 by reindexing the message info objects
+	Evolve to generation 4 by reindexing all personal entry blogs
 	"""
 	do_evolve(context)

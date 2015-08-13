@@ -15,6 +15,7 @@ generation = 3
 import zope.intid
 
 from zope import component
+
 from zope.component.hooks import site, setHooks
 
 from zope.generations.generations import SchemaManager
@@ -52,7 +53,7 @@ def do_evolve(context):
 		intids.register(queue)
 		lsm.registerUtility(queue, provided=IMetadataQueue)
 
-		logger.info( 'nti.metadata install complete.' )
+		logger.info('nti.metadata install complete.')
 		return
 
 def evolve(context):

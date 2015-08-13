@@ -13,12 +13,14 @@ logger = __import__('logging').getLogger(__name__)
 
 generation = 3
 
-import zope.intid
-
 from zope import component
+
 from zope.component.hooks import site, setHooks
 
+from zope.intid import IIntIds
+
 from nti.dataserver.interfaces import IMetadataCatalog
+
 from nti.dataserver.metadata_index import CATALOG_NAME
 from nti.dataserver.metadata_index import IX_SHAREDWITH
 from nti.dataserver.metadata_index import IX_REVSHAREDWITH
@@ -33,7 +35,7 @@ def do_evolve(context):
 	ds_folder = root['nti.dataserver']
 
 	lsm = ds_folder.getSiteManager()
-	intids = lsm.getUtility(zope.intid.IIntIds)
+	intids = lsm.getUtility(IIntIds)
 
 	total = 0
 	with site(ds_folder):
@@ -41,7 +43,7 @@ def do_evolve(context):
 				"Hooks not installed?"
 
 		catalog = lsm.getUtility(provided=IMetadataCatalog, name=CATALOG_NAME)
-		
+
 		sharedWithIdx = catalog[IX_SHAREDWITH]
 		try:
 			index = catalog[IX_REVSHAREDWITH]
@@ -51,18 +53,18 @@ def do_evolve(context):
 			index.__parent__ = catalog
 			index.__name__ = IX_REVSHAREDWITH
 			catalog[IX_REVSHAREDWITH] = index
-		
+
 		queue = metadata_queue()
 		if queue is None:
 			return None
-		
+
 		for uid in sharedWithIdx.ids():
 			try:
 				queue.add(uid)
 				total += 1
 			except TypeError:
 				pass
-	
+
 		logger.info('Metadata evolution %s done; %s object(s) put in queue',
 					generation, total)
 
