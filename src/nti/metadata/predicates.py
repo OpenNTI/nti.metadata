@@ -5,7 +5,6 @@
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nti.dataserver.contenttypes.forums.interfaces import IDFLBoard
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -19,6 +18,8 @@ from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IIntIdIterable
 from nti.dataserver.interfaces import IPrincipalMetadataObjects
 from nti.dataserver.interfaces import IDynamicSharingTargetFriendsList
+
+from nti.dataserver.contenttypes.forums.interfaces import IDFLBoard
 
 from .utils import user_messageinfo_iter_objects
 
