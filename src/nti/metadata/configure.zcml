@@ -40,7 +40,10 @@
 		
 	<subscriber	factory=".predicates._MeetingPrincipalObjects"
 				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
-								
+		
+	<subscriber	factory=".predicates._DFLBlogObjects"
+				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
+						
 	<!-- Register our queue -->
 	<configure zcml:condition="have devmode">
 

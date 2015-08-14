@@ -5,6 +5,7 @@
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+from nti.dataserver.contenttypes.forums.interfaces import IDFLBoard
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -17,6 +18,7 @@ from nti.chatserver.interfaces import IUserTranscriptStorage
 from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IIntIdIterable
 from nti.dataserver.interfaces import IPrincipalMetadataObjects
+from nti.dataserver.interfaces import IDynamicSharingTargetFriendsList
 
 from .utils import user_messageinfo_iter_objects
 
@@ -69,3 +71,21 @@ class _MeetingPrincipalObjects(BasePrincipalObjects):
 		storage = IUserTranscriptStorage(self.user)
 		for meeting in storage.meetings:
 			yield meeting
+
+@component.adapter(IUser)
+class _DFLBlogObjects(BasePrincipalObjects):
+
+	def iter_objects(self):
+		for membership in self.user.dynamic_memberships:
+			if not IDynamicSharingTargetFriendsList.providedBy(membership):
+				continue
+			board = IDFLBoard(membership, None)
+			if not board:
+				continue
+			yield board
+			for forum in board.values():
+				yield forum
+				for topic in forum.values():
+					yield topic
+					for comment in topic.values():
+						yield comment
