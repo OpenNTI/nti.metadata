@@ -15,11 +15,16 @@ from zope import interface
 from nti.chatserver.interfaces import IUserTranscriptStorage
 
 from nti.dataserver.interfaces import IUser
+from nti.dataserver.interfaces import ICommunity
+from nti.dataserver.interfaces import IDataserver
+from nti.dataserver.interfaces import IShardLayout
 from nti.dataserver.interfaces import IIntIdIterable
+from nti.dataserver.interfaces import ISystemUserPrincipal
 from nti.dataserver.interfaces import IPrincipalMetadataObjects
 from nti.dataserver.interfaces import IDynamicSharingTargetFriendsList
 
 from nti.dataserver.contenttypes.forums.interfaces import IDFLBoard
+from nti.dataserver.contenttypes.forums.interfaces import ICommunityBoard
 
 from .utils import user_messageinfo_iter_objects
 
@@ -81,6 +86,30 @@ class _DFLBlogObjects(BasePrincipalObjects):
 			if not IDynamicSharingTargetFriendsList.providedBy(membership):
 				continue
 			board = IDFLBoard(membership, None)
+			if not board:
+				continue
+			yield board
+			for forum in board.values():
+				yield forum
+				for topic in forum.values():
+					yield topic
+					for comment in topic.values():
+						yield comment
+
+@component.adapter(ISystemUserPrincipal)
+class _CommunityBlogObjects(BasePrincipalObjects):
+
+	def iter_communities(self):
+		dataserver = component.getUtility(IDataserver)
+		entities = IShardLayout(dataserver).users_folder
+		for entity in entities.values():
+			if not ICommunity.providedBy(entity):
+				continue
+			yield entity
+
+	def iter_objects(self, intids=None):
+		for community in self.iter_communities():
+			board = ICommunityBoard(community, None)
 			if not board:
 				continue
 			yield board
