@@ -11,11 +11,11 @@ logger = __import__('logging').getLogger(__name__)
 
 import time
 
-import zope.intid
-
 from zope import component
 
 from zope.catalog.interfaces import INoAutoIndex
+
+from zope.intid import IIntIds
 
 from nti.dataserver.interfaces import IMetadataCatalog
 from nti.dataserver.interfaces import IPrincipalMetadataObjects
@@ -55,7 +55,7 @@ def queue_length(queue=None):
 def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
 				  ignore_pke=True):
 
-	ids = component.getUtility(zope.intid.IIntIds)
+	ids = component.getUtility(IIntIds)
 	catalogs = metadata_catalogs()
 	queue = metadata_queue() if queue is None else queue
 
@@ -69,14 +69,14 @@ def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
 	if queue_size > 0:
 		now = time.time()
 		done = queue.process(ids, catalogs, to_process, ignore_pke=ignore_pke)
-		queue_size = max(0, queue_size-done)
-		logger.info("%s event(s) processed in %s(s). Queue size %s", done, 
-					time.time()-now, queue_size)
+		queue_size = max(0, queue_size - done)
+		logger.info("%s event(s) processed in %s(s). Queue size %s", done,
+					time.time() - now, queue_size)
 
 	return to_process
 
 def get_uid(obj, intids=None):
-	intids = component.getUtility(zope.intid.IIntIds) if intids is None else intids
+	intids = component.getUtility(IIntIds) if intids is None else intids
 	if not isBroken(obj):
 		uid = intids.queryId(obj)
 		if uid is None:
@@ -84,7 +84,7 @@ def get_uid(obj, intids=None):
 		else:
 			return uid
 	return None
-get_iid = get_uid # alias
+get_iid = get_uid  # alias
 
 def get_principal_metadata_objects(principal):
 	predicates = component.subscribers((principal,), IPrincipalMetadataObjects)
@@ -92,10 +92,10 @@ def get_principal_metadata_objects(principal):
 		for obj in predicate.iter_objects():
 			if not isBroken(obj):
 				yield obj
-			
+
 def get_principal_metadata_objects_intids(principal):
-	intids = component.getUtility(zope.intid.IIntIds) 
+	intids = component.getUtility(IIntIds)
 	for obj in get_principal_metadata_objects(principal):
 		uid = get_uid(obj, intids=intids)
-		if uid is not None: 
+		if uid is not None:
 			yield uid
