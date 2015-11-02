@@ -45,7 +45,7 @@ DEFAULT_SLEEP = 1
 DEFAULT_RETRIES = 2
 DEFAULT_INTERVAL = 30
 
-def process_index_msgs(	ignore_pke=True,
+def process_index_msgs(ignore_pke=True,
 						use_trx_runner=True,
 						sleep=DEFAULT_SLEEP,
 						retries=DEFAULT_RETRIES,
@@ -65,14 +65,14 @@ def process_index_msgs(	ignore_pke=True,
 	except (UnableToAcquireCommitLock, ConflictError) as e:
 		logger.error(e)
 		result = CONFLICT_ERROR_RT
-	except (TypeError, StandardError): # Cache errors?
+	except (TypeError, StandardError):  # Cache errors?
 		logger.exception('Cannot process index messages')
 		raise
 	return result
 
 @interface.implementer(IIndexReactor)
 class MetadataIndexReactor(object):
-	
+
 	stop = False
 	start_time = 0
 	processor = pid = None
@@ -86,7 +86,7 @@ class MetadataIndexReactor(object):
 		self.max_wait_time = max_time or MAX_INTERVAL
 		self.sleep = DEFAULT_SLEEP if sleep is None else sleep
 		self.ignore_pke = True if ignore_pke is None else ignore_pke
-		
+
 		if min_time:
 			self.min_wait_time = min_time
 
@@ -131,7 +131,7 @@ class MetadataIndexReactor(object):
 												 	retries=self.retries,
 												 	ignore_pke=self.ignore_pke)
 						duration = time.time() - start
-						if result == 0: # no work
+						if result == 0:  # no work
 							batch_size = self.limit  # reset to default
 							secs = generator.randint(self.min_wait_time,
 													 self.max_wait_time)
@@ -163,7 +163,7 @@ class MetadataIndexReactor(object):
 				except KeyboardInterrupt:
 					break
 				except (TypeError, StandardError):
-					result = 77 # Cache errors?
+					result = 77  # Cache errors?
 					break
 				except:
 					logger.exception("Unhandled exception")

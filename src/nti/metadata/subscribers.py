@@ -9,9 +9,9 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-import zope.intid
-
 from zope import component
+
+from zope.intid import IIntIds
 
 from zope.lifecycleevent import IObjectRemovedEvent
 
@@ -30,8 +30,9 @@ from . import metadata_queue
 from . import dataserver_metadata_catalog
 
 def query_uid(obj):
-	intids = component.queryUtility(zope.intid.IIntIds)
-	result = getattr(obj, '_ds_intid', None)
+	intids = component.queryUtility(IIntIds)
+	attribute = getattr(intids, 'attribute', '_ds_intid')
+	result = getattr(obj, attribute, None)
 	# Fall back to our utility if we need to.
 	# Extremely slow if we do __len__
 	if result is None and intids is not None:

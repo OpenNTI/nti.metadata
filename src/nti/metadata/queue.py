@@ -52,7 +52,7 @@ class _ProxyMap(Mapping):
 
 	def items(self):
 		for k, v in self._data.items():
-			yield k,v
+			yield k, v
 
 @interface.implementer(IMetadataEventQueue)
 class MetadataEventQueue(Contained, CatalogEventQueue):
@@ -131,7 +131,7 @@ class MetadataQueue(Contained, CatalogQueue):
 	def process(self, ids, catalogs, limit, ignore_pke=True):
 		done = 0
 		for queue in self._queues:
-			for uid, (_, event) in queue.process(limit-done).iteritems():
+			for uid, (_, event) in queue.process(limit - done).iteritems():
 				try:
 					if event is REMOVED:
 						for catalog in catalogs:
@@ -144,8 +144,8 @@ class MetadataQueue(Contained, CatalogQueue):
 							logger.warn("Ignoring broken object with id %s", uid)
 						else:
 							for catalog in catalogs:
-								if IMetadataCatalog.providedBy( catalog ):
-									catalog.force_index_doc(uid, ob )
+								if IMetadataCatalog.providedBy(catalog):
+									catalog.force_index_doc(uid, ob)
 								else:
 									catalog.index_doc(uid, ob)
 				except (POSError), e:
