@@ -46,10 +46,10 @@ DEFAULT_RETRIES = 2
 DEFAULT_INTERVAL = 30
 
 def process_index_msgs(ignore_pke=True,
-						use_trx_runner=True,
-						sleep=DEFAULT_SLEEP,
-						retries=DEFAULT_RETRIES,
-						limit=DEFAULT_QUEUE_LIMIT):
+					   use_trx_runner=True,
+					   sleep=DEFAULT_SLEEP,
+					   retries=DEFAULT_RETRIES,
+					   limit=DEFAULT_QUEUE_LIMIT):
 
 	result = 0
 	try:

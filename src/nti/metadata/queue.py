@@ -148,7 +148,7 @@ class MetadataQueue(Contained, CatalogQueue):
 									catalog.force_index_doc(uid, ob)
 								else:
 									catalog.index_doc(uid, ob)
-				except (POSError), e:
+				except (POSError, TypeError) as e:
 					if ignore_pke:
 						logger.error("Error while indexing object with id %s", uid)
 					else:

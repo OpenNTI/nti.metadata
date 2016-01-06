@@ -10,10 +10,14 @@ __docformat__ = "restructuredtext en"
 logger = __import__('logging').getLogger(__name__)
 
 from zope import component
+from zope import interface
 
-from zope.intid import IIntIds
+from zope.intid.interfaces import IIntIds
+from zope.intid.interfaces import IIntIdAddedEvent
+from zope.intid.interfaces import IIntIdRemovedEvent
 
-from zope.lifecycleevent import IObjectRemovedEvent
+from zope.lifecycleevent.interfaces import IObjectRemovedEvent
+from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 
 from nti.dataserver.interfaces import IEntity
 
@@ -81,20 +85,23 @@ def queue_remove(obj):
 				queue.remove(iid)
 
 # IIntIdRemovedEvent
+@component.adapter(interface.Interface, IIntIdRemovedEvent)
 def _object_removed(modeled, event):
 	queue_remove(modeled)
 
 # IIntIdAddedEvent
+@component.adapter(interface.Interface, IIntIdAddedEvent)
 def _object_added(modeled, event):
 	queue_added(modeled)
 
 # IObjectModifiedEvent
+@component.adapter(interface.Interface, IObjectModifiedEvent)
 def _object_modified(modeled, event):
 	queue_modified(modeled)
 
 def delete_entity_data(username):
-	logger.info("Removing metadata data for user %s", username)
 	result = 0
+	logger.info("Removing metadata data for user %s", username)
 	catalog = dataserver_metadata_catalog()
 	if catalog is not None:
 		username = username.lower()
