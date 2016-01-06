@@ -12,13 +12,13 @@ logger = __import__('logging').getLogger(__name__)
 
 generation = 4
 
-import zope.intid
-
 from zope import component
 
 from zope.component.hooks import site, setHooks
 
 from zope.generations.generations import SchemaManager
+
+from zope.intid.interfaces import IIntIds
 
 from nti.metadata.queue import MetadataQueue
 from nti.metadata.interfaces import IMetadataQueue
@@ -40,7 +40,7 @@ def do_evolve(context):
 	ds_folder = root['nti.dataserver']
 
 	lsm = ds_folder.getSiteManager()
-	intids = lsm.getUtility(zope.intid.IIntIds)
+	intids = lsm.getUtility(IIntIds)
 
 	with site(ds_folder):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \

@@ -21,8 +21,9 @@ from zope.intid import IIntIds
 
 from nti.dataserver.interfaces import IUser
 
-from nti.metadata import metadata_queue
-from nti.metadata.utils import user_messageinfo_iter_intids
+from ..utils import user_messageinfo_iter_intids
+
+from .. import metadata_queue
 
 def do_evolve(context):
 	setHooks()

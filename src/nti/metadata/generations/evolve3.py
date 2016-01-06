@@ -26,7 +26,7 @@ from nti.dataserver.metadata_index import IX_SHAREDWITH
 from nti.dataserver.metadata_index import IX_REVSHAREDWITH
 from nti.dataserver.metadata_index import RevSharedWithIndex
 
-from nti.metadata import metadata_queue
+from .. import metadata_queue
 
 def do_evolve(context):
 	setHooks()

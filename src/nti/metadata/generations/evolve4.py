@@ -22,7 +22,7 @@ from nti.dataserver.interfaces import IMetadataCatalog
 from nti.dataserver.metadata_index import IX_MIMETYPE
 from nti.dataserver.metadata_index import CATALOG_NAME
 
-from nti.metadata import metadata_queue
+from .. import metadata_queue
 
 PERSONAL_BLOG_ENTRY_POST = 'application/vnd.nextthought.forums.personalblogentrypost'
 
