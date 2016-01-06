@@ -10,6 +10,7 @@
 	<include package="zope.security" />
 
 	<meta:directives namespace="http://nextthought.com/metadata">
+
 		<meta:directive	name="registerImmediateProcessingQueue"
 						schema="nti.metadata.interfaces.IMetadataQueueFactory"
 						handler="nti.metadata.zcml.registerImmediateProcessingQueue" />
@@ -17,6 +18,7 @@
 		<meta:directive	name="registerProcessingQueue"
 						schema="nti.metadata.interfaces.IMetadataQueueFactory"
 						handler="nti.metadata.zcml.registerProcessingQueue" />
+
 	</meta:directives>
 
 </configure>
