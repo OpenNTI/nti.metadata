@@ -20,8 +20,9 @@ from zope.generations.generations import SchemaManager
 
 from zope.intid.interfaces import IIntIds
 
-from nti.metadata.queue import MetadataQueue
-from nti.metadata.interfaces import IMetadataQueue
+from ..queue import MetadataQueue
+
+from ..interfaces import IMetadataQueue
 
 class _MetadataSchemaManager(SchemaManager):
 	"""
