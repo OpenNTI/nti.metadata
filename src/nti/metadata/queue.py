@@ -25,9 +25,10 @@ from zope.location import locate
 from ZODB.interfaces import IBroken
 from ZODB.POSException import POSError
 
-from zc.catalogqueue.queue import CatalogQueue
 from zc.catalogqueue.CatalogEventQueue import REMOVED
 from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
+
+from zc.catalogqueue.queue import CatalogQueue
 
 from nti.dataserver.interfaces import IMetadataCatalog
 
@@ -79,6 +80,13 @@ class MetadataQueue(Contained, CatalogQueue):
 			queue = MetadataEventQueue()
 			locate(queue, self, str(i))
 			self._queues.append(queue)
+
+	def extend(self, ids):
+		for uid in ids or ():
+			try:
+				self.add(uid)
+			except TypeError:
+				pass
 
 	@property
 	def buckets(self):
