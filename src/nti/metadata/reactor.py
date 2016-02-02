@@ -26,12 +26,12 @@ from ZODB.POSException import ConflictError
 
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
+from nti.metadata import process_queue
+
+from nti.metadata.interfaces import IIndexReactor
+from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
+
 from nti.zodb.interfaces import UnableToAcquireCommitLock
-
-from .interfaces import IIndexReactor
-from .interfaces import DEFAULT_QUEUE_LIMIT
-
-from . import process_queue
 
 MIN_INTERVAL = 10
 MAX_INTERVAL = 60

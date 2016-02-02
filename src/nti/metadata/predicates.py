@@ -14,6 +14,9 @@ from zope import interface
 
 from nti.chatserver.interfaces import IUserTranscriptStorage
 
+from nti.dataserver.contenttypes.forums.interfaces import IDFLBoard
+from nti.dataserver.contenttypes.forums.interfaces import ICommunityBoard
+
 from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import ICommunity
 from nti.dataserver.interfaces import IDataserver
@@ -23,12 +26,9 @@ from nti.dataserver.interfaces import ISystemUserPrincipal
 from nti.dataserver.interfaces import IPrincipalMetadataObjects
 from nti.dataserver.interfaces import IDynamicSharingTargetFriendsList
 
-from nti.dataserver.contenttypes.forums.interfaces import IDFLBoard
-from nti.dataserver.contenttypes.forums.interfaces import ICommunityBoard
+from nti.metadata import get_iid
 
-from .utils import user_messageinfo_iter_objects
-
-from . import get_iid
+from nti.metadata.utils import user_messageinfo_iter_objects
 
 @interface.implementer(IIntIdIterable, IPrincipalMetadataObjects)
 class BasePrincipalObjects(object):

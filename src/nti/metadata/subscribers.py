@@ -27,11 +27,11 @@ from nti.dataserver.metadata_index import IX_SHAREDWITH
 from nti.dataserver.metadata_index import IX_REVSHAREDWITH
 from nti.dataserver.metadata_index import IX_REPLIES_TO_CREATOR
 
-from nti.zope_catalog.interfaces import IKeywordIndex
+from nti.metadata import is_indexable
+from nti.metadata import metadata_queue
+from nti.metadata import dataserver_metadata_catalog
 
-from . import is_indexable
-from . import metadata_queue
-from . import dataserver_metadata_catalog
+from nti.zope_catalog.interfaces import IKeywordIndex
 
 def query_uid(obj):
 	intids = component.queryUtility(IIntIds)

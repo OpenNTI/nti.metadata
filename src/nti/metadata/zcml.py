@@ -16,10 +16,10 @@ from zope import interface
 
 from zope.component.zcml import utility
 
-from .interfaces import IMetadataQueue
-from .interfaces import IMetadataQueueFactory
+from nti.metadata import process_queue
 
-from . import process_queue
+from nti.metadata.interfaces import IMetadataQueue
+from nti.metadata.interfaces import IMetadataQueueFactory
 
 @interface.implementer(IMetadataQueue)
 class ImmediateQueueRunner(object):
