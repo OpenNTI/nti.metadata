@@ -21,6 +21,7 @@ from zope import interface
 from zope.component import ComponentLookupError
 
 from ZODB import loglevels
+
 from ZODB.POSException import POSError
 from ZODB.POSException import ConflictError
 
@@ -33,16 +34,31 @@ from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 
 from nti.zodb.interfaces import UnableToAcquireCommitLock
 
+#: Min interval time in sec
 MIN_INTERVAL = 10
+
+#: Max interval time in sec
 MAX_INTERVAL = 60
+
+#: Min batch size
 MIN_BATCH_SIZE = 10
+
+#: Default wait time
 DEFAULT_WAIT_TIME = 30
 
+#: ZODB POSErorr code
 POS_ERROR_RT = -2
+
+#: ZODB conflict error
 CONFLICT_ERROR_RT = -1
 
+#: Default sleep times
 DEFAULT_SLEEP = 1
+
+#: Default number of retries
 DEFAULT_RETRIES = 2
+
+#: Default time interval
 DEFAULT_INTERVAL = 30
 
 def process_index_msgs(ignore_pke=True,
