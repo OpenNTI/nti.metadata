@@ -13,6 +13,7 @@ from zope import interface
 
 from zc.catalogqueue.interfaces import ICatalogQueue
 
+#: Default process queue limit
 DEFAULT_QUEUE_LIMIT = 100
 
 class IIndexReactor(interface.Interface):
@@ -27,19 +28,24 @@ class IMetadataQueue(ICatalogQueue):
 
 	buckets = interface.Attribute("number of event queues")
 
+	def extend(ids):
+		"""
+		Helper method to add the specified iterable of ids
+		"""
+
 	def syncQueue():
 		"""
-		sync the length of this queue with its children event queues
+		Sync the length of this queue with its children event queues
 		"""
 
 	def eventQueueLength():
 		"""
-		return the length of all internal search event queues
+		Return the length of all internal search event queues
 		"""
 
 	def __getitem__(idx):
 		"""
-		return the search event queue(s) for the specified index
+		Return the search event queue(s) for the specified index
 		"""
 
 class IMetadataQueueFactory(interface.Interface):
