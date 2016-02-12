@@ -22,6 +22,7 @@ from nti.dataserver.interfaces import IPrincipalMetadataObjects
 
 from nti.dataserver.metadata_index import CATALOG_NAME
 
+from nti.metadata.interfaces import NO_QUEUE_LIMIT
 from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 from nti.metadata.interfaces import IMetadataQueueFactory
 
@@ -64,7 +65,7 @@ def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
 		logger.debug("Queue synced")
 	queue_size = queue_length(queue)
 
-	limit = queue_size if limit == -1 else limit
+	limit = queue_size if limit == NO_QUEUE_LIMIT else limit
 	to_process = min(limit, queue_size)
 	if queue_size > 0:
 		now = time.time()

@@ -16,6 +16,9 @@ from zc.catalogqueue.interfaces import ICatalogQueue
 #: Default process queue limit
 DEFAULT_QUEUE_LIMIT = 100
 
+#: No queue limit
+NO_QUEUE_LIMIT = -1
+
 class IIndexReactor(interface.Interface):
 	"""
 	marker interface for a reactor
