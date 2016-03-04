@@ -15,15 +15,16 @@ generation = 2
 
 from zope import component
 
-from zope.component.hooks import site, setHooks
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
 
-from zope.intid import IIntIds
+from zope.intid.interfaces import IIntIds
 
 from nti.dataserver.interfaces import IUser
 
-from ..utils import user_messageinfo_iter_intids
+from nti.metadata import metadata_queue
 
-from .. import metadata_queue
+from nti.metadata.utils import user_messageinfo_iter_intids
 
 def do_evolve(context):
 	setHooks()

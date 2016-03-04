@@ -14,15 +14,16 @@ generation = 4
 
 from zope import component
 
-from zope.component.hooks import site, setHooks
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
 
 from zope.generations.generations import SchemaManager
 
 from zope.intid.interfaces import IIntIds
 
-from ..queue import MetadataQueue
+from nti.metadata.interfaces import IMetadataQueue
 
-from ..interfaces import IMetadataQueue
+from nti.metadata.queue import MetadataQueue
 
 class _MetadataSchemaManager(SchemaManager):
 	"""

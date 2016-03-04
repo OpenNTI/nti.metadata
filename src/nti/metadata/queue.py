@@ -140,6 +140,7 @@ class MetadataQueue(Contained, CatalogQueue):
 		done = 0
 		for queue in self._queues:
 			for uid, (_, event) in queue.process(limit - done).iteritems():
+				__traceback_info__ = uid, event
 				try:
 					if event is REMOVED:
 						for catalog in catalogs:

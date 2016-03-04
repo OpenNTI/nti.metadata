@@ -11,9 +11,9 @@ logger = __import__('logging').getLogger(__name__)
 
 from nti.chatserver.interfaces import IUserTranscriptStorage
 
-from nti.zodb import isBroken
+from nti.metadata import get_iid
 
-from .. import get_iid
+from nti.zodb import isBroken
 
 def user_messageinfo_iter_objects(user, broken=None):
 	storage = IUserTranscriptStorage(user)
@@ -24,7 +24,7 @@ def user_messageinfo_iter_objects(user, broken=None):
 				broken.append(message)
 			else:
 				yield message
-				
+
 def user_messageinfo_iter_intids(user, intids=None, broken=None):
 	for message in user_messageinfo_iter_objects(user, broken=broken):
 		uid = get_iid(message, intids=intids)

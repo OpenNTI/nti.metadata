@@ -15,9 +15,10 @@ generation = 3
 
 from zope import component
 
-from zope.component.hooks import site, setHooks
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
 
-from zope.intid import IIntIds
+from zope.intid.interfaces import IIntIds
 
 from nti.dataserver.interfaces import IMetadataCatalog
 
@@ -26,7 +27,7 @@ from nti.dataserver.metadata_index import IX_SHAREDWITH
 from nti.dataserver.metadata_index import IX_REVSHAREDWITH
 from nti.dataserver.metadata_index import RevSharedWithIndex
 
-from .. import metadata_queue
+from nti.metadata import metadata_queue
 
 def do_evolve(context):
 	setHooks()

@@ -30,12 +30,13 @@ from nti.dataserver.utils.base_script import create_context
 
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
+from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
+
 from nti.metadata.reactor import MIN_INTERVAL
 from nti.metadata.reactor import MAX_INTERVAL
 from nti.metadata.reactor import DEFAULT_SLEEP
 from nti.metadata.reactor import DEFAULT_RETRIES
 from nti.metadata.reactor import DEFAULT_INTERVAL
-from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 
 from nti.metadata.reactor import MetadataIndexReactor
 
@@ -128,16 +129,16 @@ def _process_args(args):
 	ei = '%(asctime)s %(levelname)-5.5s [%(name)s][%(thread)d][%(threadName)s] %(message)s'
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
 
-	# # open connections to all databases
-	# # so they can be recycled in the connection pool
+	# open connections to all databases
+	# so they can be recycled in the connection pool
 	db = component.getUtility(IDatabase)
 	open_all_databases(db, close_children=False)
 
-	# # load all libraries
+	# load all libraries
 	transaction_runner = component.getUtility(IDataserverTransactionRunner)
 	transaction_runner(_load_library)
 
-	# # set site if available
+	# set site if available
 	set_site(args.site)
 	target = MetadataIndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
 						  		  retries=retries, sleep=sleep, ignore_pke=ignore_pke)
