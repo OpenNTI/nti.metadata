@@ -30,6 +30,8 @@ from nti.metadata import process_queue
 from nti.metadata.interfaces import IIndexReactor
 from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 
+from nti.transactions import DEFAULT_LONG_RUNNING_COMMIT_IN_SECS
+
 from nti.zodb.interfaces import UnableToAcquireCommitLock
 
 #: Min interval time in sec
@@ -45,7 +47,7 @@ DEFAULT_INTERVAL = 15
 MIN_BATCH_SIZE = 10
 
 #: Default max batch size
-DEFAULT_MAX_BATCH_SIZE = 1500
+DEFAULT_MAX_BATCH_SIZE = 2500
 
 #: Default sleep times
 DEFAULT_SLEEP = 1
@@ -146,25 +148,26 @@ class MetadataIndexReactor(object):
 						duration = time.time() - start
 						if result == 0:  # no work
 							batch_size = self.limit  # reset to default
-							secs = generator.randint(self.min_wait_time,
-													 self.max_wait_time)
-							duration = secs
+							duration = generator.randint(self.min_wait_time,
+														 self.max_wait_time)
 						elif result < 0:  # conflict error/exception
 							factor = 0.33 if result == CONFLICT_ERROR_RT else 0.2
 							batch_size = max(MIN_BATCH_SIZE, int(batch_size * factor))
 							duration = min(duration * 2.0, MAX_INTERVAL * 3.0)
+						elif duration > DEFAULT_LONG_RUNNING_COMMIT_IN_SECS:
+							batch_size = max(MIN_BATCH_SIZE, int(batch_size * 0.5))
+							duration = generator.randint(self.min_wait_time,
+													 	 self.max_wait_time)
 						elif duration < MAX_INTERVAL:
 							batch_size = int(batch_size * 1.5)
 							half = int(duration / 2.0)
-							secs = generator.randint(self.min_wait_time,
-												  	 max(self.min_wait_time, half))
-							duration = secs
+							duration = generator.randint(self.min_wait_time,
+												  	 	 max(self.min_wait_time, half))
 						else:
 							half = batch_size * .5
 							batch_size = max(MIN_BATCH_SIZE, int(half / duration))
-							secs = generator.randint(self.min_wait_time,
-													 self.max_wait_time)
-							duration = secs
+							duration = generator.randint(self.min_wait_time,
+													 	 self.max_wait_time)
 
 						batch_size = min(batch_size, self.max_batch_size)
 						if batch_size == self.max_batch_size:
