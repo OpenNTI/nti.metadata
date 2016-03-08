@@ -20,8 +20,6 @@ from zope import interface
 
 from zope.component import ComponentLookupError
 
-from ZODB import loglevels
-
 from ZODB.POSException import POSError
 from ZODB.POSException import ConflictError
 
@@ -40,17 +38,14 @@ MIN_INTERVAL = 10
 #: Max interval time in sec
 MAX_INTERVAL = 60
 
+#: Default time interval
+DEFAULT_INTERVAL = 15
+
 #: Min batch size
 MIN_BATCH_SIZE = 10
 
-#: Default wait time
-DEFAULT_WAIT_TIME = 30
-
-#: ZODB POSErorr code
-POS_ERROR_RT = -2
-
-#: ZODB conflict error
-CONFLICT_ERROR_RT = -1
+#: Default max batch size
+DEFAULT_MAX_BATCH_SIZE = 1500
 
 #: Default sleep times
 DEFAULT_SLEEP = 1
@@ -58,8 +53,11 @@ DEFAULT_SLEEP = 1
 #: Default number of retries
 DEFAULT_RETRIES = 2
 
-#: Default time interval
-DEFAULT_INTERVAL = 30
+#: ZODB POSErorr code
+POS_ERROR_RT = -2
+
+#: ZODB conflict error
+CONFLICT_ERROR_RT = -1
 
 def process_index_msgs(ignore_pke=True,
 					   use_trx_runner=True,
@@ -93,30 +91,29 @@ class MetadataIndexReactor(object):
 	start_time = 0
 	processor = pid = None
 
-	def __init__(self, min_time=None, max_time=None, limit=None,
-				 retries=None, sleep=None, ignore_pke=True):
+	def __init__(self, 
+				 # wait time
+				 min_time=None, 
+				 max_time=None, 
+				 # batch size
+				 limit=None,
+				 max_batch_size=None,
+				 # transaction params
+				 retries=None, 
+				 sleep=None, 
+				 # ignore POSErrors
+				 ignore_pke=True):
 
+		self.sleep = sleep or DEFAULT_SLEEP
 		self.retries = retries or DEFAULT_RETRIES
+
 		self.limit = limit or DEFAULT_QUEUE_LIMIT
+		self.max_batch_size = max_batch_size or DEFAULT_MAX_BATCH_SIZE
+		
 		self.min_wait_time = min_time or MIN_INTERVAL
 		self.max_wait_time = max_time or MAX_INTERVAL
-		self.sleep = DEFAULT_SLEEP if sleep is None else sleep
+
 		self.ignore_pke = True if ignore_pke is None else ignore_pke
-
-		if min_time:
-			self.min_wait_time = min_time
-
-		if max_time:
-			self.max_wait_time = max_time
-
-		if limit and limit != DEFAULT_QUEUE_LIMIT:
-			self.limit = limit
-
-		if sleep:
-			self.sleep = sleep
-
-		if retries:
-			self.retries = retries
 
 	def __repr__(self):
 		return "%s" % (self.__class__.__name__.lower())
@@ -169,8 +166,7 @@ class MetadataIndexReactor(object):
 													 self.max_wait_time)
 							duration = secs
 
-						logger.log(loglevels.TRACE, "Sleeping %s(secs). Batch size %s",
-								   duration, batch_size)
+						batch_size = min(batch_size, self.max_batch_size)
 						sleep(duration)
 				except ComponentLookupError:
 					result = 99
