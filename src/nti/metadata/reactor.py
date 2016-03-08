@@ -33,7 +33,7 @@ from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 from nti.zodb.interfaces import UnableToAcquireCommitLock
 
 #: Min interval time in sec
-MIN_INTERVAL = 10
+MIN_INTERVAL = 5
 
 #: Max interval time in sec
 MAX_INTERVAL = 60
