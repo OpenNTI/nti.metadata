@@ -167,6 +167,9 @@ class MetadataIndexReactor(object):
 							duration = secs
 
 						batch_size = min(batch_size, self.max_batch_size)
+						if batch_size == self.max_batch_size:
+							duration = min(duration, MIN_INTERVAL)
+
 						sleep(duration)
 				except ComponentLookupError:
 					result = 99
