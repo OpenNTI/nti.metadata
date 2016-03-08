@@ -130,7 +130,7 @@ def _process_args(args):
 	assert limit > 0
 	
 	max_batch_size = args.max_batch_size
-	assert max_batch_size > 0 and max_batch_size < limit
+	assert max_batch_size > 0 and max_batch_size >= limit
 
 	retries = args.retries
 	assert retries >= 1 and retries <= 5
