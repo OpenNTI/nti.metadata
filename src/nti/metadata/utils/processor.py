@@ -152,8 +152,10 @@ def _process_args(args):
 	transaction_runner = component.getUtility(IDataserverTransactionRunner)
 	transaction_runner(_load_library)
 
-	# set site if available
+	# XXX. set site if available should be set after loading the library
 	set_site(args.site)
+	
+	# create and run reactor
 	target = MetadataIndexReactor(min_time=mintime,
 								  max_time=maxtime, 
 								  limit=limit,
