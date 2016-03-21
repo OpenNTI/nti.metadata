@@ -159,7 +159,7 @@ class MetadataIndexReactor(object):
 							duration = generator.randint(self.min_wait_time,
 													 	 self.max_wait_time)
 						elif duration < MAX_INTERVAL:
-							batch_size = int(batch_size * 1.5)
+							batch_size = int(batch_size * 1.7)
 							half = int(duration / 2.0)
 							duration = generator.randint(self.min_wait_time,
 												  	 	 max(self.min_wait_time, half))
