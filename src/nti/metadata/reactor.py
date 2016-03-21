@@ -41,7 +41,7 @@ MIN_INTERVAL = 5
 MAX_INTERVAL = 60
 
 #: Default time interval
-DEFAULT_INTERVAL = 15
+DEFAULT_INTERVAL = 10
 
 #: Min batch size
 MIN_BATCH_SIZE = 10
