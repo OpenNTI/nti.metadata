@@ -30,10 +30,10 @@ from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
 
 from zc.catalogqueue.queue import CatalogQueue
 
-from nti.dataserver.interfaces import IMetadataCatalog
-
 from nti.metadata.interfaces import IMetadataQueue
 from nti.metadata.interfaces import IMetadataEventQueue
+
+from nti.zope_catalog.interfaces import IMetadataCatalog
 
 class _ProxyMap(Mapping):
 
@@ -63,7 +63,7 @@ class MetadataEventQueue(Contained, CatalogEventQueue):
 		return _ProxyMap(result)
 
 	def keys(self):
-		result = list(self._data.keys())
+		result = tuple(self._data.keys())
 		return result
 
 @interface.implementer(IMetadataQueue)

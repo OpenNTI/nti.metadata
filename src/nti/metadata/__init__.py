@@ -17,7 +17,6 @@ from zope.catalog.interfaces import INoAutoIndex
 
 from zope.intid.interfaces import IIntIds
 
-from nti.dataserver.interfaces import IMetadataCatalog
 from nti.dataserver.interfaces import IPrincipalMetadataObjects
 
 from nti.dataserver.metadata_index import CATALOG_NAME
@@ -27,6 +26,8 @@ from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 from nti.metadata.interfaces import IMetadataQueueFactory
 
 from nti.zodb import isBroken
+
+from nti.zope_catalog.interfaces import IMetadataCatalog
 
 def is_indexable(obj):
 	return not INoAutoIndex.providedBy(obj)

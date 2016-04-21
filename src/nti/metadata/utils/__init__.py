@@ -17,10 +17,9 @@ from nti.zodb import isBroken
 
 def user_messageinfo_iter_objects(user, broken=None):
 	storage = IUserTranscriptStorage(user)
-	broken = list() if broken is None else broken
 	for transcript in storage.transcripts:
 		for message in transcript.Messages:
-			if isBroken(message):
+			if broken is not None and isBroken(message):
 				broken.append(message)
 			else:
 				yield message
