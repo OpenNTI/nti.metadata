@@ -33,6 +33,7 @@ from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 from nti.transactions import DEFAULT_LONG_RUNNING_COMMIT_IN_SECS
 
 from nti.zodb.interfaces import UnableToAcquireCommitLock
+from nti.zodb.interfaces import ZODBUnableToAcquireCommitLock
 
 #: Min interval time in sec
 MIN_INTERVAL = 5
@@ -78,7 +79,7 @@ def process_index_msgs(ignore_pke=True,
 	except POSError:
 		logger.exception("Cannot index object(s)")
 		result = POS_ERROR_RT
-	except (UnableToAcquireCommitLock, ConflictError) as e:
+	except (ZODBUnableToAcquireCommitLock, UnableToAcquireCommitLock, ConflictError) as e:
 		logger.error(e)
 		result = CONFLICT_ERROR_RT
 	except (TypeError, StandardError):  # Cache errors?
