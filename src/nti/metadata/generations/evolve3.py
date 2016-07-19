@@ -20,7 +20,7 @@ from zope.component.hooks import setHooks
 
 from zope.intid.interfaces import IIntIds
 
-from nti.dataserver.interfaces import IMetadataCatalog
+from nti.zope_catalog.interfaces import IMetadataCatalog
 
 from nti.dataserver.metadata_index import CATALOG_NAME
 from nti.dataserver.metadata_index import IX_SHAREDWITH

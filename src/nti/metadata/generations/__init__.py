@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-zope.generations support for the nti.metadata.
-
 .. $Id$
 """
 

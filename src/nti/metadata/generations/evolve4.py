@@ -18,7 +18,7 @@ from zope import component
 from zope.component.hooks import site
 from zope.component.hooks import setHooks
 
-from nti.dataserver.interfaces import IMetadataCatalog
+from nti.zope_catalog.interfaces import IMetadataCatalog
 
 from nti.dataserver.metadata_index import IX_MIMETYPE
 from nti.dataserver.metadata_index import CATALOG_NAME
