@@ -35,26 +35,28 @@ class _MetadataSchemaManager(SchemaManager):
 											minimum_generation=generation,
 											package_name='nti.metadata.generations')
 
+def install_metadata_queue(ds_folder):
+	lsm = ds_folder.getSiteManager()
+	intids = lsm.getUtility(IIntIds)
+
+	# Register our queue
+	queue = MetadataQueue()
+	queue.__parent__ = ds_folder
+	queue.__name__ = '++etc++metadata++queue'
+	intids.register(queue)
+	lsm.registerUtility(queue, provided=IMetadataQueue)
+		
 def do_evolve(context):
 	setHooks()
 	conn = context.connection
 	root = conn.root()
 	ds_folder = root['nti.dataserver']
 
-	lsm = ds_folder.getSiteManager()
-	intids = lsm.getUtility(IIntIds)
-
 	with site(ds_folder):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"
 
-		# Register our queue
-		queue = MetadataQueue()
-		queue.__parent__ = ds_folder
-		queue.__name__ = '++etc++metadata++queue'
-		intids.register(queue)
-		lsm.registerUtility(queue, provided=IMetadataQueue)
-
+		install_metadata_queue(ds_folder)
 		logger.info('nti.metadata install complete.')
 		return
 
