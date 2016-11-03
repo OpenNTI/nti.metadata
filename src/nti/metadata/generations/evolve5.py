@@ -56,7 +56,6 @@ def do_evolve(context, generation=generation):
 
 	lsm = ds_folder.getSiteManager()
 	intids = lsm.getUtility(IIntIds)
-
 	with current_site(ds_folder):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"
