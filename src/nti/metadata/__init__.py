@@ -22,7 +22,8 @@ from nti.dataserver.interfaces import IPrincipalMetadataObjects
 from nti.dataserver.metadata_index import CATALOG_NAME
 
 from nti.metadata.interfaces import NO_QUEUE_LIMIT
-from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
+from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT as QUEUE_LIMIT
+
 from nti.metadata.interfaces import IMetadataQueueFactory
 
 from nti.zodb import isBroken
@@ -33,17 +34,14 @@ def is_indexable(obj):
 	return not INoAutoIndex.providedBy(obj)
 
 def metadata_catalogs():
-	result = [catalog for _, catalog in component.getUtilitiesFor(IMetadataCatalog)]
-	return result
+	return tuple(catalog for _, catalog in component.getUtilitiesFor(IMetadataCatalog))
 
 def dataserver_metadata_catalog():
-	result = component.queryUtility(IMetadataCatalog, name=CATALOG_NAME)
-	return result
+	return component.queryUtility(IMetadataCatalog, name=CATALOG_NAME)
 
 def metadata_queue():
 	factory = component.getUtility(IMetadataQueueFactory)
-	result = factory.get_queue()
-	return result
+	return factory.get_queue()
 
 def queue_length(queue=None):
 	queue = queue if queue is not None else metadata_queue()
@@ -54,9 +52,7 @@ def queue_length(queue=None):
 		logger.error("Could not compute queue length")
 	return result
 
-def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, queue=None,
-				  ignore_pke=True):
-
+def process_queue(limit=QUEUE_LIMIT, sync_queue=True, queue=None, ignore_pke=True):
 	ids = component.getUtility(IIntIds)
 	catalogs = metadata_catalogs()
 	queue = metadata_queue() if queue is None else queue
