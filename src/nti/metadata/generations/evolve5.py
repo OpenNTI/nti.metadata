@@ -82,7 +82,8 @@ def do_evolve(context, generation=generation):
 						except TypeError:
 							pass
 
-		logger.info('Metadata evolution %s done', generation)
+		logger.info('Metadata evolution %s done; %s object(s) put in queue',
+					generation, total)
 
 	component.getGlobalSiteManager().unregisterUtility(mock_ds, IDataserver)
 
