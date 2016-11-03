@@ -23,6 +23,7 @@ from nti.zope_catalog.interfaces import IMetadataCatalog
 
 from nti.dataserver.interfaces import IDataserver
 from nti.dataserver.interfaces import IOIDResolver
+from nti.dataserver.interfaces import IUserGeneratedData
 
 from nti.dataserver.metadata_index import IX_TOPICS
 from nti.dataserver.metadata_index import IX_MIMETYPE
@@ -54,6 +55,7 @@ def do_evolve(context, generation=generation):
 	mock_ds.root = ds_folder
 	component.provideUtility(mock_ds, IDataserver)
 
+	total = 0
 	lsm = ds_folder.getSiteManager()
 	intids = lsm.getUtility(IIntIds)
 	with current_site(ds_folder):
@@ -71,7 +73,14 @@ def do_evolve(context, generation=generation):
 			queue = metadata_queue()
 			if queue is not None:
 				mimeTypeIdx = catalog[IX_MIMETYPE]
-				queue.extend(mimeTypeIdx.ids())
+				for uid in mimeTypeIdx.ids():
+					obj = intids.queryObject(uid)
+					if IUserGeneratedData.providedBy(obj):
+						try:
+							queue.add(uid)
+							total += 1
+						except TypeError:
+							pass
 
 		logger.info('Metadata evolution %s done', generation)
 
