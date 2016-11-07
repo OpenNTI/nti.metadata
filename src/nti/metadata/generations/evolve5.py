@@ -66,14 +66,21 @@ def do_evolve(context, generation=generation):
 
 		topics = catalog[IX_TOPICS]
 		if TP_USER_GENERATED_DATA not in topics._filters:
-			the_filter = IsUserGeneratedDataExtentFilteredSet(TP_USER_GENERATED_DATA, 
+			the_filter = IsUserGeneratedDataExtentFilteredSet(TP_USER_GENERATED_DATA,
 															  family=intids.family)
 			topics.addFilter(the_filter)
-	
+
+			count = 0
+
 			queue = metadata_queue()
 			if queue is not None:
 				mimeTypeIdx = catalog[IX_MIMETYPE]
+				total = len( mimeTypeIdx.ids() )
+				logger.info( 'Indexing new extent (count=%s)', total )
 				for uid in mimeTypeIdx.ids():
+					count += 1
+					if count % 10000 == 0:
+						logger.info( 'Indexing new extent (%s/%s)', count, total )
 					obj = intids.queryObject(uid)
 					if IUserGeneratedData.providedBy(obj):
 						try:
