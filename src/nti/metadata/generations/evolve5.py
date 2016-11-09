@@ -23,15 +23,11 @@ from nti.zope_catalog.interfaces import IMetadataCatalog
 
 from nti.dataserver.interfaces import IDataserver
 from nti.dataserver.interfaces import IOIDResolver
-from nti.dataserver.interfaces import IUserGeneratedData
 
 from nti.dataserver.metadata_index import IX_TOPICS
-from nti.dataserver.metadata_index import IX_MIMETYPE
 from nti.dataserver.metadata_index import CATALOG_NAME
 from nti.dataserver.metadata_index import TP_USER_GENERATED_DATA
 from nti.dataserver.metadata_index import IsUserGeneratedDataExtentFilteredSet
-
-from nti.metadata import metadata_queue
 
 @interface.implementer(IDataserver)
 class MockDataserver(object):
@@ -55,7 +51,6 @@ def do_evolve(context, generation=generation):
 	mock_ds.root = ds_folder
 	component.provideUtility(mock_ds, IDataserver)
 
-	total = 0
 	lsm = ds_folder.getSiteManager()
 	intids = lsm.getUtility(IIntIds)
 	with current_site(ds_folder):
@@ -70,27 +65,7 @@ def do_evolve(context, generation=generation):
 															  family=intids.family)
 			topics.addFilter(the_filter)
 
-			count = 0
-
-			queue = metadata_queue()
-			if queue is not None:
-				mimeTypeIdx = catalog[IX_MIMETYPE]
-				total = len( mimeTypeIdx.ids() )
-				logger.info( 'Indexing new extent (count=%s)', total )
-				for uid in mimeTypeIdx.ids():
-					count += 1
-					if count % 10000 == 0:
-						logger.info( 'Indexing new extent (%s/%s)', count, total )
-					obj = intids.queryObject(uid)
-					if IUserGeneratedData.providedBy(obj):
-						try:
-							queue.add(uid)
-							total += 1
-						except TypeError:
-							pass
-
-		logger.info('Metadata evolution %s done; %s object(s) put in queue',
-					generation, total)
+		logger.info('Metadata evolution %s done', generation)
 
 	component.getGlobalSiteManager().unregisterUtility(mock_ds, IDataserver)
 
