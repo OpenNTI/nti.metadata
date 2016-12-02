@@ -101,7 +101,7 @@ def main():
 		raise IOError("Invalid dataserver environment root directory")
 
 	context = create_context(env_dir, with_library=True, plugins=True)
-	conf_packages = ('nti.appserver', 'nti.contentlibrary', 'nti.metadata')
+	conf_packages = ('nti.appserver', 'nti.metadata')
 
 	run_with_dataserver(environment_dir=env_dir,
 						xmlconfig_packages=conf_packages,
