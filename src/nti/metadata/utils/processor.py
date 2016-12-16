@@ -21,8 +21,6 @@ from zope import component
 
 from ZODB.interfaces import IDatabase
 
-from nti.contentlibrary.interfaces import IContentPackageLibrary
-
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.dataserver.utils import open_all_databases
@@ -100,7 +98,7 @@ def main():
 	if not env_dir or not os.path.exists(env_dir) and not os.path.isdir(env_dir):
 		raise IOError("Invalid dataserver environment root directory")
 
-	context = create_context(env_dir, with_library=True, plugins=False)
+	context = create_context(env_dir, with_library=True, plugins=True)
 	conf_packages = ('nti.appserver', 'nti.metadata')
 
 	run_with_dataserver(environment_dir=env_dir,
@@ -112,9 +110,13 @@ def main():
 						function=lambda: _process_args(args))
 
 def _load_library():
-	library = component.queryUtility(IContentPackageLibrary)
-	if library is not None:
-		library.syncContentPackages()
+	try:
+		from nti.contentlibrary.interfaces import IContentPackageLibrary
+		library = component.queryUtility(IContentPackageLibrary)
+		if library is not None:
+			library.syncContentPackages()
+	except ImportError:
+		pass
 
 def _process_args(args):
 	import logging
