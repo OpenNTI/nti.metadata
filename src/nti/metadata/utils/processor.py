@@ -100,9 +100,12 @@ def main():
     env_dir = os.getenv('DATASERVER_DIR')
     if not env_dir or not os.path.exists(env_dir) and not os.path.isdir(env_dir):
         raise IOError("Invalid dataserver environment root directory")
-
-    context = create_context(
-        env_dir, with_library=True, plugins=False, slugs=False)
+       
+    # consume the minimal confing files
+    context = create_context(env_dir,
+                             with_library=True, 
+                             plugins=False, 
+                             slugs=False)
     conf_packages = ('nti.appserver', 'nti.metadata')
 
     run_with_dataserver(environment_dir=env_dir,
