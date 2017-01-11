@@ -96,6 +96,9 @@ def main():
                             type=int,
                             default=DEFAULT_MAX_BATCH_SIZE)
 
+    arg_parser.add_argument('--slugs', help="Load slugs", action='store_true',
+                            dest='slugs')
+    
     args = arg_parser.parse_args()
     env_dir = os.getenv('DATASERVER_DIR')
     if not env_dir or not os.path.exists(env_dir) and not os.path.isdir(env_dir):
@@ -103,9 +106,9 @@ def main():
        
     # consume the minimal confing files
     context = create_context(env_dir,
-                             with_library=True, 
-                             plugins=False, 
-                             slugs=False)
+                             with_library=True,
+                             slugs=args.slugs,
+                             plugins=args.slugs)
     conf_packages = ('nti.appserver', 'nti.metadata')
 
     run_with_dataserver(environment_dir=env_dir,
