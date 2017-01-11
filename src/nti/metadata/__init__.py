@@ -52,7 +52,7 @@ def queue_length(queue=None):
 		logger.error("Could not compute queue length")
 	return result
 
-def process_queue(limit=QUEUE_LIMIT, sync_queue=True, queue=None, ignore_pke=True):
+def process_queue(limit=QUEUE_LIMIT, sync_queue=True, queue=None, ignore_errors=True):
 	ids = component.getUtility(IIntIds)
 	catalogs = metadata_catalogs()
 	queue = metadata_queue() if queue is None else queue
@@ -66,7 +66,7 @@ def process_queue(limit=QUEUE_LIMIT, sync_queue=True, queue=None, ignore_pke=Tru
 	to_process = min(limit, queue_size)
 	if queue_size > 0:
 		now = time.time()
-		done = queue.process(ids, catalogs, to_process, ignore_pke=ignore_pke)
+		done = queue.process(ids, catalogs, to_process, ignore_errors=ignore_errors)
 		queue_size = max(0, queue_size - done)
 		logger.info("%s event(s) processed in %s(s). Queue size %s", done,
 					time.time() - now, queue_size)

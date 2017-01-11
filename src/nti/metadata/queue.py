@@ -20,8 +20,6 @@ from zope import interface
 
 from zope.container.contained import Contained
 
-from zope.interface.interfaces import ComponentLookupError
-
 from zope.location import locate
 
 from ZODB.interfaces import IBroken
@@ -141,7 +139,7 @@ class MetadataQueue(Contained, CatalogQueue):
     __repr__ = __str__
 
     # Overriding process to handle our MetadataCatalogs
-    def process(self, ids, catalogs, limit, ignore_pke=True):
+    def process(self, ids, catalogs, limit, ignore_errors=True):
         done = 0
         for queue in self._queues:
             for uid, (_, event) in queue.process(limit - done).iteritems():
@@ -163,8 +161,8 @@ class MetadataQueue(Contained, CatalogQueue):
                                     catalog.force_index_doc(uid, ob)
                                 else:
                                     catalog.index_doc(uid, ob)
-                except (POSError, TypeError, ComponentLookupError) as e:
-                    if ignore_pke:
+                except (POSError, TypeError, LookupError) as e:
+                    if ignore_errors:
                         logger.exception(
                             "Error while indexing object with id %s", uid)
                     else:

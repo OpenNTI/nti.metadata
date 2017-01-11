@@ -62,7 +62,7 @@ POS_ERROR_RT = -2
 #: ZODB conflict error
 CONFLICT_ERROR_RT = -1
 
-def process_index_msgs(ignore_pke=True,
+def process_index_msgs(ignore_errors=True,
 					   use_trx_runner=True,
 					   sleep=DEFAULT_SLEEP,
 					   retries=DEFAULT_RETRIES,
@@ -70,7 +70,7 @@ def process_index_msgs(ignore_pke=True,
 
 	result = 0
 	try:
-		runner = partial(process_queue, limit=limit, ignore_pke=ignore_pke)
+		runner = partial(process_queue, limit=limit, ignore_errors=ignore_errors)
 		if use_trx_runner:
 			trx_runner = component.getUtility(IDataserverTransactionRunner)
 			result = trx_runner(runner, retries=retries, sleep=sleep)
@@ -104,8 +104,8 @@ class MetadataIndexReactor(object):
 				 # transaction params
 				 retries=None, 
 				 sleep=None, 
-				 # ignore POSErrors
-				 ignore_pke=True):
+				 # ignore Errors
+				 ignore_errors=True):
 
 		self.sleep = sleep or DEFAULT_SLEEP
 		self.retries = retries or DEFAULT_RETRIES
@@ -116,7 +116,7 @@ class MetadataIndexReactor(object):
 		self.min_wait_time = min_time or MIN_INTERVAL
 		self.max_wait_time = max_time or MAX_INTERVAL
 
-		self.ignore_pke = True if ignore_pke is None else ignore_pke
+		self.ignore_errors = True if ignore_errors is None else ignore_errors
 
 	def __repr__(self):
 		return "%s" % (self.__class__.__name__.lower())
@@ -145,7 +145,7 @@ class MetadataIndexReactor(object):
 						result = process_index_msgs(limit=batch_size,
 												 	sleep=self.sleep,
 												 	retries=self.retries,
-												 	ignore_pke=self.ignore_pke)
+												 	ignore_errors=self.ignore_errors)
 						duration = time.time() - start
 						if result == 0:  # no work
 							batch_size = self.limit  # reset to default
