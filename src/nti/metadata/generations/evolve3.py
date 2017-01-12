@@ -41,7 +41,7 @@ def do_evolve(context):
 
     total = 0
     with site(ds_folder):
-        assert   component.getSiteManager() == ds_folder.getSiteManager(), \
+        assert  component.getSiteManager() == ds_folder.getSiteManager(), \
                 "Hooks not installed?"
 
         catalog = lsm.getUtility(provided=IMetadataCatalog, name=CATALOG_NAME)
