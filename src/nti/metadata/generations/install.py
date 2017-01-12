@@ -25,40 +25,45 @@ from nti.metadata.interfaces import IMetadataQueue
 
 from nti.metadata.queue import MetadataQueue
 
+
 class _MetadataSchemaManager(SchemaManager):
-	"""
-	A schema manager that we can register as a utility in ZCML.
-	"""
-	def __init__(self):
-		super(_MetadataSchemaManager, self).__init__(
-											generation=generation,
-											minimum_generation=generation,
-											package_name='nti.metadata.generations')
+    """
+    A schema manager that we can register as a utility in ZCML.
+    """
+
+    def __init__(self):
+        super(_MetadataSchemaManager, self).__init__(
+            generation=generation,
+            minimum_generation=generation,
+            package_name='nti.metadata.generations')
+
 
 def install_metadata_queue(ds_folder):
-	lsm = ds_folder.getSiteManager()
-	intids = lsm.getUtility(IIntIds)
+    lsm = ds_folder.getSiteManager()
+    intids = lsm.getUtility(IIntIds)
 
-	# Register our queue
-	queue = MetadataQueue()
-	queue.__parent__ = ds_folder
-	queue.__name__ = '++etc++metadata++queue'
-	intids.register(queue)
-	lsm.registerUtility(queue, provided=IMetadataQueue)
-		
+    # Register our queue
+    queue = MetadataQueue()
+    queue.__parent__ = ds_folder
+    queue.__name__ = '++etc++metadata++queue'
+    intids.register(queue)
+    lsm.registerUtility(queue, provided=IMetadataQueue)
+
+
 def do_evolve(context):
-	setHooks()
-	conn = context.connection
-	root = conn.root()
-	ds_folder = root['nti.dataserver']
+    setHooks()
+    conn = context.connection
+    root = conn.root()
+    ds_folder = root['nti.dataserver']
 
-	with site(ds_folder):
-		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
-				"Hooks not installed?"
+    with site(ds_folder):
+        assert  component.getSiteManager() == ds_folder.getSiteManager(), \
+                "Hooks not installed?"
 
-		install_metadata_queue(ds_folder)
-		logger.info('nti.metadata install complete.')
-		return
+        install_metadata_queue(ds_folder)
+        logger.info('nti.metadata install complete.')
+        return
+
 
 def evolve(context):
-	do_evolve(context)
+    do_evolve(context)

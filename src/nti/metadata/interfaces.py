@@ -19,39 +19,43 @@ DEFAULT_QUEUE_LIMIT = 100
 #: No queue limit
 NO_QUEUE_LIMIT = -1
 
+
 class IIndexReactor(interface.Interface):
-	"""
-	marker interface for a reactor
-	"""
+    """
+    marker interface for a reactor
+    """
+
 
 class IMetadataEventQueue(interface.Interface):
-	pass
+    pass
+
 
 class IMetadataQueue(ICatalogQueue):
 
-	buckets = interface.Attribute("number of event queues")
+    buckets = interface.Attribute("number of event queues")
 
-	def extend(ids):
-		"""
-		Helper method to add the specified iterable of ids
-		"""
+    def extend(ids):
+        """
+        Helper method to add the specified iterable of ids
+        """
 
-	def syncQueue():
-		"""
-		Sync the length of this queue with its children event queues
-		"""
+    def syncQueue():
+        """
+        Sync the length of this queue with its children event queues
+        """
 
-	def eventQueueLength():
-		"""
-		Return the length of all internal search event queues
-		"""
+    def eventQueueLength():
+        """
+        Return the length of all internal search event queues
+        """
 
-	def __getitem__(idx):
-		"""
-		Return the search event queue(s) for the specified index
-		"""
+    def __getitem__(idx):
+        """
+        Return the search event queue(s) for the specified index
+        """
+
 
 class IMetadataQueueFactory(interface.Interface):
-	"""
-	A factory for metadata queues.
-	"""
+    """
+    A factory for metadata queues.
+    """

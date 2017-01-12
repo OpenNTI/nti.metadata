@@ -29,48 +29,52 @@ from nti.dataserver.metadata_index import CATALOG_NAME
 from nti.dataserver.metadata_index import TP_USER_GENERATED_DATA
 from nti.dataserver.metadata_index import IsUserGeneratedDataExtentFilteredSet
 
+
 @interface.implementer(IDataserver)
 class MockDataserver(object):
 
-	root = None
+    root = None
 
-	def get_by_oid(self, oid, ignore_creator=False):
-		resolver = component.queryUtility(IOIDResolver)
-		if resolver is None:
-			logger.warn("Using dataserver without a proper ISiteManager configuration.")
-		else:
-			return resolver.get_object_by_oid(oid, ignore_creator=ignore_creator)
-		return None
+    def get_by_oid(self, oid, ignore_creator=False):
+        resolver = component.queryUtility(IOIDResolver)
+        if resolver is None:
+            logger.warn(
+                "Using dataserver without a proper ISiteManager configuration.")
+        else:
+            return resolver.get_object_by_oid(oid, ignore_creator=ignore_creator)
+        return None
+
 
 def do_evolve(context, generation=generation):
-	setHooks()
-	conn = context.connection
-	ds_folder = conn.root()['nti.dataserver']
+    setHooks()
+    conn = context.connection
+    ds_folder = conn.root()['nti.dataserver']
 
-	mock_ds = MockDataserver()
-	mock_ds.root = ds_folder
-	component.provideUtility(mock_ds, IDataserver)
+    mock_ds = MockDataserver()
+    mock_ds.root = ds_folder
+    component.provideUtility(mock_ds, IDataserver)
 
-	lsm = ds_folder.getSiteManager()
-	intids = lsm.getUtility(IIntIds)
-	with current_site(ds_folder):
-		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
-				"Hooks not installed?"
+    lsm = ds_folder.getSiteManager()
+    intids = lsm.getUtility(IIntIds)
+    with current_site(ds_folder):
+        assert   component.getSiteManager() == ds_folder.getSiteManager(), \
+                "Hooks not installed?"
 
-		catalog = lsm.getUtility(provided=IMetadataCatalog, name=CATALOG_NAME)
+        catalog = lsm.getUtility(provided=IMetadataCatalog, name=CATALOG_NAME)
 
-		topics = catalog[IX_TOPICS]
-		if TP_USER_GENERATED_DATA not in topics._filters:
-			the_filter = IsUserGeneratedDataExtentFilteredSet(TP_USER_GENERATED_DATA,
-															  family=intids.family)
-			topics.addFilter(the_filter)
+        topics = catalog[IX_TOPICS]
+        if TP_USER_GENERATED_DATA not in topics._filters:
+            the_filter = IsUserGeneratedDataExtentFilteredSet(TP_USER_GENERATED_DATA,
+                                                              family=intids.family)
+            topics.addFilter(the_filter)
 
-		logger.info('Metadata evolution %s done', generation)
+        logger.info('Metadata evolution %s done', generation)
 
-	component.getGlobalSiteManager().unregisterUtility(mock_ds, IDataserver)
+    component.getGlobalSiteManager().unregisterUtility(mock_ds, IDataserver)
+
 
 def evolve(context):
-	"""
-	Evolve to generation 5 by adding a IsUserGeneratedDataExtentFilteredSet index
-	"""
-	do_evolve(context, generation)
+    """
+    Evolve to generation 5 by adding a IsUserGeneratedDataExtentFilteredSet index
+    """
+    do_evolve(context, generation)

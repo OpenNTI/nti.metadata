@@ -29,50 +29,52 @@ from nti.dataserver.metadata_index import RevSharedWithIndex
 
 from nti.metadata import metadata_queue
 
+
 def do_evolve(context):
-	setHooks()
-	conn = context.connection
-	root = conn.root()
-	ds_folder = root['nti.dataserver']
+    setHooks()
+    conn = context.connection
+    root = conn.root()
+    ds_folder = root['nti.dataserver']
 
-	lsm = ds_folder.getSiteManager()
-	intids = lsm.getUtility(IIntIds)
+    lsm = ds_folder.getSiteManager()
+    intids = lsm.getUtility(IIntIds)
 
-	total = 0
-	with site(ds_folder):
-		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
-				"Hooks not installed?"
+    total = 0
+    with site(ds_folder):
+        assert   component.getSiteManager() == ds_folder.getSiteManager(), \
+                "Hooks not installed?"
 
-		catalog = lsm.getUtility(provided=IMetadataCatalog, name=CATALOG_NAME)
+        catalog = lsm.getUtility(provided=IMetadataCatalog, name=CATALOG_NAME)
 
-		sharedWithIdx = catalog[IX_SHAREDWITH]
-		try:
-			index = catalog[IX_REVSHAREDWITH]
-		except KeyError:
-			index = RevSharedWithIndex(family=intids.family)
-			intids.register(index)
-			index.__parent__ = catalog
-			index.__name__ = IX_REVSHAREDWITH
-			catalog[IX_REVSHAREDWITH] = index
+        sharedWithIdx = catalog[IX_SHAREDWITH]
+        try:
+            index = catalog[IX_REVSHAREDWITH]
+        except KeyError:
+            index = RevSharedWithIndex(family=intids.family)
+            intids.register(index)
+            index.__parent__ = catalog
+            index.__name__ = IX_REVSHAREDWITH
+            catalog[IX_REVSHAREDWITH] = index
 
-		queue = metadata_queue()
-		if queue is None:
-			return None
+        queue = metadata_queue()
+        if queue is None:
+            return None
 
-		for uid in sharedWithIdx.ids():
-			try:
-				queue.add(uid)
-				total += 1
-			except TypeError:
-				pass
+        for uid in sharedWithIdx.ids():
+            try:
+                queue.add(uid)
+                total += 1
+            except TypeError:
+                pass
 
-		logger.info('Metadata evolution %s done; %s object(s) put in queue',
-					generation, total)
+        logger.info('Metadata evolution %s done; %s object(s) put in queue',
+                    generation, total)
 
-	return total
+    return total
+
 
 def evolve(context):
-	"""
-	Evolve to generation 3 by adding a revSharedWith index
-	"""
-	do_evolve(context)
+    """
+    Evolve to generation 3 by adding a revSharedWith index
+    """
+    do_evolve(context)
