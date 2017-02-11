@@ -39,7 +39,8 @@ class TestMetadataIndex(DataserverLayerTest):
 		root_note.containerId = 'other:container'
 		greg.addContainedObject( root_note )
 
-		jason = users.User.create_user( dataserver=self.ds, username='jason.madden@nextthought.com' )
+		jason = users.User.create_user(dataserver=self.ds, 
+									   username='jason.madden@nextthought.com' )
 
 		note = Note()
 		note.inReplyTo = root_note

@@ -18,24 +18,26 @@ from nti.metadata.interfaces import IMetadataQueueFactory
 import nti.testing.base
 
 ZCML_STRING = """
-<configure 	xmlns="http://namespaces.zope.org/zope"
-			xmlns:zcml="http://namespaces.zope.org/zcml"
-			xmlns:metadata="http://nextthought.com/metadata"
-			i18n_domain='nti.dataserver'>
+<configure     xmlns="http://namespaces.zope.org/zope"
+            xmlns:zcml="http://namespaces.zope.org/zcml"
+            xmlns:metadata="http://nextthought.com/metadata"
+            i18n_domain='nti.dataserver'>
 
-	<include package="zope.component" />
-	<include package="zope.annotation" />
-	<include package="z3c.baseregistry" file="meta.zcml" />
-	<include package="." file="meta.zcml" />
+    <include package="zope.component" />
+    <include package="zope.annotation" />
+    <include package="z3c.baseregistry" file="meta.zcml" />
+    <include package="." file="meta.zcml" />
 
-	<metadata:registerProcessingQueue />
+    <metadata:registerProcessingQueue />
+
 </configure>
 """
 
+
 class TestZcml(nti.testing.base.ConfiguringTestBase):
 
-	def test_registration(self):
-		self.configure_string(ZCML_STRING)
+    def test_registration(self):
+        self.configure_string(ZCML_STRING)
 
-		factory = component.queryUtility(IMetadataQueueFactory)
-		assert_that(factory, is_not(none()))
+        factory = component.queryUtility(IMetadataQueueFactory)
+        assert_that(factory, is_not(none()))
