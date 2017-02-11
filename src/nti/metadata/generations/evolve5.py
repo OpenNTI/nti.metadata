@@ -38,8 +38,7 @@ class MockDataserver(object):
     def get_by_oid(self, oid, ignore_creator=False):
         resolver = component.queryUtility(IOIDResolver)
         if resolver is None:
-            logger.warn(
-                "Using dataserver without a proper ISiteManager configuration.")
+            logger.warn("Using dataserver without a proper ISiteManager.")
         else:
             return resolver.get_object_by_oid(oid, ignore_creator=ignore_creator)
         return None
@@ -60,7 +59,8 @@ def do_evolve(context, generation=generation):
         assert  component.getSiteManager() == ds_folder.getSiteManager(), \
                 "Hooks not installed?"
 
-        catalog = lsm.getUtility(provided=IMetadataCatalog, name=CATALOG_NAME)
+        catalog = lsm.getUtility(provided=IMetadataCatalog, 
+                                 name=CATALOG_NAME)
 
         topics = catalog[IX_TOPICS]
         if TP_USER_GENERATED_DATA not in topics._filters:
