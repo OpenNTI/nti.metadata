@@ -58,7 +58,7 @@ class _ProxyMap(Mapping):
 
 
 @interface.implementer(IMetadataEventQueue)
-class MetadataEventQueue(Contained, CatalogEventQueue):
+class MetadataEventQueue(CatalogEventQueue, Contained):
 
     def process(self, limit=None):
         result = super(MetadataEventQueue, self).process(limit)
@@ -70,7 +70,7 @@ class MetadataEventQueue(Contained, CatalogEventQueue):
 
 
 @interface.implementer(IMetadataQueue)
-class MetadataQueue(Contained, CatalogQueue):
+class MetadataQueue(CatalogQueue, Contained):
 
     def __init__(self, buckets=1009):
         CatalogQueue.__init__(self, buckets=0)
@@ -138,35 +138,38 @@ class MetadataQueue(Contained, CatalogQueue):
         return "%s(%s)" % (self.__class__.__name__, self._buckets)
     __repr__ = __str__
 
+    def _process_event(self, catalogs, ids, event, uid, ignore_errors=True):
+        try:
+            if event is REMOVED:
+                for catalog in catalogs:
+                    catalog.unindex_doc(uid)
+            else:
+                ob = ids.queryObject(uid)
+                if ob is None:
+                    logger.warn("Couldn't find object for %s", uid)
+                elif IBroken.providedBy(ob):
+                    logger.warn("Ignoring broken object with id %s",
+                                uid)
+                else:
+                    for catalog in catalogs:
+                        if IMetadataCatalog.providedBy(catalog):
+                            catalog.force_index_doc(uid, ob)
+                        else:
+                            catalog.index_doc(uid, ob)
+        except (POSError, TypeError, LookupError) as e:
+            if ignore_errors:
+                logger.exception("Error while indexing object with id %s",
+                                 uid)
+            else:
+                raise e
+
     # Overriding process to handle our MetadataCatalogs
     def process(self, ids, catalogs, limit, ignore_errors=True):
         done = 0
         for queue in self._queues:
             for uid, (_, event) in queue.process(limit - done).iteritems():
                 __traceback_info__ = uid, event
-                try:
-                    if event is REMOVED:
-                        for catalog in catalogs:
-                            catalog.unindex_doc(uid)
-                    else:
-                        ob = ids.queryObject(uid)
-                        if ob is None:
-                            logger.warn("Couldn't find object for %s", uid)
-                        elif IBroken.providedBy(ob):
-                            logger.warn(
-                                "Ignoring broken object with id %s", uid)
-                        else:
-                            for catalog in catalogs:
-                                if IMetadataCatalog.providedBy(catalog):
-                                    catalog.force_index_doc(uid, ob)
-                                else:
-                                    catalog.index_doc(uid, ob)
-                except (POSError, TypeError, LookupError) as e:
-                    if ignore_errors:
-                        logger.exception(
-                            "Error while indexing object with id %s", uid)
-                    else:
-                        raise e
+                self._process_event(catalogs, ids, event, uid, ignore_errors)
                 done += 1
                 self._change_length(-1)
 
