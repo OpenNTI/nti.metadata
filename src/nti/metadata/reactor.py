@@ -54,7 +54,7 @@ DEFAULT_MAX_BATCH_SIZE = 2500
 DEFAULT_SLEEP = 1
 
 #: Default number of retries
-DEFAULT_RETRIES = 2
+DEFAULT_RETRIES = 3
 
 #: ZODB POSErorr code
 POS_ERROR_RT = -2
