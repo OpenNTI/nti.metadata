@@ -82,7 +82,9 @@ def process_index_msgs(ignore_errors=True,
     except POSError:
         logger.exception("Cannot index object(s)")
         result = POS_ERROR_RT
-    except (ZODBUnableToAcquireCommitLock, UnableToAcquireCommitLock, ConflictError) as e:
+    except (ZODBUnableToAcquireCommitLock,
+            UnableToAcquireCommitLock, 
+            ConflictError) as e:
         logger.error(e)
         result = CONFLICT_ERROR_RT
     except (TypeError, StandardError):  # Cache errors?
@@ -157,12 +159,12 @@ class MetadataIndexReactor(object):
                                                          self.max_wait_time)
                         elif result < 0:  # conflict error/exception
                             factor = 0.33 if result == CONFLICT_ERROR_RT else 0.2
-                            batch_size = max(
-                                MIN_BATCH_SIZE, int(batch_size * factor))
+                            batch_size = max(MIN_BATCH_SIZE, 
+                                             int(batch_size * factor))
                             duration = min(duration * 2.0, MAX_INTERVAL * 3.0)
                         elif duration > DEFAULT_LONG_RUNNING_COMMIT_IN_SECS:
-                            batch_size = max(
-                                MIN_BATCH_SIZE, int(batch_size * 0.5))
+                            batch_size = max(MIN_BATCH_SIZE, 
+                                             int(batch_size * 0.5))
                             duration = generator.randint(self.min_wait_time,
                                                          self.max_wait_time)
                         elif duration < MAX_INTERVAL:
@@ -172,8 +174,8 @@ class MetadataIndexReactor(object):
                                                          max(self.min_wait_time, half))
                         else:
                             half = batch_size * .5
-                            batch_size = max(
-                                MIN_BATCH_SIZE, int(half / duration))
+                            batch_size = max(MIN_BATCH_SIZE, 
+                                             int(half / duration))
                             duration = generator.randint(self.min_wait_time,
                                                          self.max_wait_time)
 
