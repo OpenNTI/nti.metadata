@@ -26,6 +26,8 @@ from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT as QUEUE_LIMIT
 
 from nti.metadata.interfaces import IMetadataQueueFactory
 
+from nti.metadata.processing import add_to_queue
+
 from nti.zodb import isBroken
 
 from nti.zope_catalog.interfaces import IMetadataCatalog
@@ -33,9 +35,9 @@ from nti.zope_catalog.interfaces import IMetadataCatalog
 
 QUEUE_NAMES = ('++etc++metadata++queue',)
 
-REMOVED  = 0
-ADDED    = 1
-CHANGED  = 2
+REMOVED = 0
+ADDED = 1
+CHANGED = 2
 MODIFIED = CHANGED
 EVENT_TYPES = (REMOVED, CHANGED, ADDED)
 
@@ -67,6 +69,17 @@ def queue_length(queue=None):
     return result
 
 
+# queue
+
+
+def get_uid(obj, intids=None):
+    intids = component.getUtility(IIntIds) if intids is None else intids
+    return intids.queryId(obj)
+
+
+get_iid = get_uid  # alias
+
+
 def process_queue(limit=QUEUE_LIMIT, sync_queue=True, queue=None, ignore_errors=True):
     ids = component.getUtility(IIntIds)
     catalogs = metadata_catalogs()
@@ -92,18 +105,46 @@ def process_queue(limit=QUEUE_LIMIT, sync_queue=True, queue=None, ignore_errors=
     return to_process
 
 
-def get_uid(obj, intids=None):
-    intids = component.getUtility(IIntIds) if intids is None else intids
-    if not isBroken(obj):
-        uid = intids.queryId(obj)
-        if uid is None:
-            logger.warn("Ignoring unregistered object %s", obj)
+def process_event(doc_id, event, ignore_errors=True):
+    catalogs = metadata_catalogs()
+    ids = component.getUtility(IIntIds)
+    try:
+        if event is REMOVED:
+            for catalog in catalogs:
+                catalog.unindex_doc(doc_id)
         else:
-            return uid
-    return None
+            ob = ids.queryObject(doc_id)
+            if ob is None:
+                logger.warn("Couldn't find object for %s", doc_id)
+            elif isBroken(ob):
+                logger.warn("Ignoring broken object with id %s", doc_id)
+            else:
+                for catalog in catalogs:
+                    if IMetadataCatalog.providedBy(catalog):
+                        catalog.force_index_doc(doc_id, ob)
+                    else:
+                        catalog.index_doc(doc_id, ob)
+    except Exception:
+        if ignore_errors:
+            logger.exception("Error while indexing object with id %s", id)
+        else:
+            raise
 
 
-get_iid = get_uid  # alias
+def queue_add(obj, event=ADDED):
+    doc_id = get_uid(obj)
+    add_to_queue(QUEUE_NAMES[0], process_event, doc_id, ADDED)
+
+
+def queue_modififed(obj):
+    queue_add(obj, CHANGED)
+
+
+def queue_removed(obj):
+    queue_add(obj, REMOVED)
+
+
+# metadata objects
 
 
 def get_principal_metadata_objects(principal):
@@ -117,6 +158,7 @@ def get_principal_metadata_objects(principal):
 def get_principal_metadata_objects_intids(principal):
     intids = component.getUtility(IIntIds)
     for obj in get_principal_metadata_objects(principal):
-        uid = get_uid(obj, intids=intids)
-        if uid is not None:
-            yield uid
+        if not isBroken(obj):
+            uid = get_uid(obj, intids=intids)
+            if uid is not None:
+                yield uid
