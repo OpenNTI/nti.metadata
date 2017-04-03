@@ -38,16 +38,14 @@ class Constructor(Processor):
         includePluginsDirective(context, PP_METADATA)
 
     def create_context(self, env_dir):
-        context = create_context(env_dir, 
-                                 with_library=True,
-                                 plugins=True,
-                                 slugs=True)
+        context = create_context(env_dir, with_library=True)
         self.extend_context(context)
         return context
 
     def process_args(self, args):
         setattr(args, 'redis', True)
-        setattr(args, 'library', True)  
+        setattr(args, 'library', True)
+        setattr(args, 'priority', True)  
         setattr(args, 'trx_retries', 9)
         setattr(args, 'max_sleep_time', 30)
         setattr(args, 'queue_names', QUEUE_NAMES)
