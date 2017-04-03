@@ -31,6 +31,15 @@ from nti.zodb import isBroken
 from nti.zope_catalog.interfaces import IMetadataCatalog
 
 
+QUEUE_NAMES = ('++etc++metadata++queue',)
+
+REMOVED  = 0
+ADDED    = 1
+CHANGED  = 2
+MODIFIED = CHANGED
+EVENT_TYPES = (REMOVED, CHANGED, ADDED)
+
+
 def is_indexable(obj):
     return not INoAutoIndex.providedBy(obj)
 
@@ -92,6 +101,8 @@ def get_uid(obj, intids=None):
         else:
             return uid
     return None
+
+
 get_iid = get_uid  # alias
 
 
