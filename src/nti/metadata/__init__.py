@@ -70,13 +70,13 @@ get_iid = get_uid  # alias
 
 def process_event(doc_id, event, ignore_errors=True):
     catalogs = metadata_catalogs()
-    ids = component.getUtility(IIntIds)
+    intids = component.getUtility(IIntIds)
     try:
         if event is REMOVED:
             for catalog in catalogs:
                 catalog.unindex_doc(doc_id)
         else:
-            ob = ids.queryObject(doc_id)
+            ob = intids.queryObject(doc_id)
             if ob is None:
                 logger.warn("Couldn't find object for %s", doc_id)
             elif isBroken(ob):
