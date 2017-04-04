@@ -109,6 +109,7 @@ def _object_modified(modeled, event):
 @component.adapter(IEntity, IObjectRemovedEvent)
 def _on_entity_removed(entity, event):
     username = entity.username
+    logger.info("Removing metadata data for user %s", username)
     delete_entity_metadata(dataserver_metadata_catalog(), username)
 
 

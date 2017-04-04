@@ -19,7 +19,6 @@ from nti.zope_catalog.interfaces import IKeywordIndex
 
 def delete_entity_metadata(catalog, username):
     result = 0
-    logger.info("Removing metadata data for user %s", username)
     if catalog is not None:
         username = username.lower()
         index = catalog[IX_CREATOR]
