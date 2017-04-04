@@ -28,7 +28,6 @@ class PluginPoint(object):
 
     def __init__(self, name):
         self.__name__ = name
-
 PP_METADATA = PluginPoint('nti.metadata')
 
 
@@ -44,8 +43,7 @@ class Constructor(Processor):
 
     def process_args(self, args):
         setattr(args, 'redis', True)
-        setattr(args, 'library', True)
-        setattr(args, 'priority', True)  
+        setattr(args, 'library', True) 
         setattr(args, 'trx_retries', 9)
         setattr(args, 'max_sleep_time', 30)
         setattr(args, 'queue_names', QUEUE_NAMES)
