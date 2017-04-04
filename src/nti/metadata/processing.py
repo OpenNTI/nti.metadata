@@ -16,11 +16,18 @@ from zope.component.hooks import site as current_site
 
 from nti.async import create_job
 
-from nti.dataserver.interfaces import IDataserver
+from nti.coremetadata.interfaces import IDataserver
+
+from nti.metadata.interfaces import IMetadataQueueFactory
 
 from nti.site.site import get_site_for_site_names
 
 from nti.site.transient import TrivialSite
+
+
+def queue_factory():
+    factory = component.getUtility(IMetadataQueueFactory)
+    return factory
 
 
 def get_site(site_name=None):
@@ -31,7 +38,7 @@ def get_site(site_name=None):
 
 
 def get_job_queue(name):
-    factory = None  # get_factory()
+    factory = queue_factory()
     return factory.get_queue(name)
 
 
@@ -71,7 +78,6 @@ def put_metadata_job(queue_name, func, job_id, site_name=None, **kwargs):
     queue = get_job_queue(queue_name)
     job = create_job(execute_metadata_job,
                      func,
-                     job_id=job_id,
                      site_name=site_name,
                      **kwargs)
     job.id = job_id

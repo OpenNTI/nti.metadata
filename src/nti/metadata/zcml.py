@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
 """
-Directives to be used in ZCML
-
 .. $Id$
 """
 
@@ -16,86 +14,68 @@ from zope import interface
 
 from zope.component.zcml import utility
 
-from nti.metadata import process_queue
+from nti.async import get_job_queue as async_queue
 
-from nti.metadata.interfaces import IMetadataQueue
+from nti.async.interfaces import IRedisQueue
+
+from nti.async.redis_queue import RedisQueue
+
+from nti.metadata import QUEUE_NAMES
+
 from nti.metadata.interfaces import IMetadataQueueFactory
 
+from nti.dataserver.interfaces import IRedisClient
 
-@interface.implementer(IMetadataQueue)
+
 class ImmediateQueueRunner(object):
+    """
+    A queue that immediately runs the given job. This is generally
+    desired for test or dev mode.
+    """
 
-    buckets = 1
-
-    def add(self, val):
-        # Process immediately
-        queue = component.queryUtility(IMetadataQueue)
-        if queue is not None:
-            queue.add(val)
-            process_queue(queue=queue)
-
-    def update(self, val):
-        queue = component.queryUtility(IMetadataQueue)
-        if queue is not None:
-            queue.update(val)
-            process_queue(queue=queue)
-
-    def remove(self, val):
-        queue = component.queryUtility(IMetadataQueue)
-        if queue is not None:
-            queue.remove(val)
-            process_queue(queue=queue)
-
-    def syncQueue(self):
-        queue = component.queryUtility(IMetadataQueue)
-        if queue is not None:
-            queue.syncQueue()
-
-    def eventQueueLength(self):
-        return len(self)
-
-    def process(self, *args, **kwargs):
-        pass
-
-    def __getitem__(self, idx):
-        queue = component.queryUtility(IMetadataQueue)
-        if queue is not None:
-            return queue[idx]
-        raise IndexError()
-
-    def __len__(self):
-        queue = component.queryUtility(IMetadataQueue)
-        if queue is not None:
-            return len(queue)
-        return 0
+    def put(self, job):
+        job()
 
 
 @interface.implementer(IMetadataQueueFactory)
 class _ImmediateQueueFactory(object):
 
-    __slots__ = ()
-
-    def get_queue(self):
+    def get_queue(self, name):
         return ImmediateQueueRunner()
 
 
 @interface.implementer(IMetadataQueueFactory)
-class _ProcessingQueueFactory(object):
+class _AbstractProcessingQueueFactory(object):
 
-    __slots__ = ()
+    queue_interface = None
 
-    def get_queue(self):
-        queue = component.queryUtility(IMetadataQueue)
+    def get_queue(self, name):
+        queue = async_queue(name, self.queue_interface)
+        if queue is None:
+            raise ValueError("No queue exists for metadata queue (%s)." % name)
         return queue
 
 
+class _MetadataQueueFactory(_AbstractProcessingQueueFactory):
+
+    queue_interface = IRedisQueue
+
+    def __init__(self, _context):
+        for name in QUEUE_NAMES:
+            queue = RedisQueue(self._redis, name)
+            utility(_context, provides=IRedisQueue, component=queue, name=name)
+
+    def _redis(self):
+        return component.getUtility(IRedisClient)
+
+
 def registerImmediateProcessingQueue(_context):
-    logger.info("Registering immediate processing queue")
+    logger.info("Registering immediate metadata queue")
     factory = _ImmediateQueueFactory()
     utility(_context, provides=IMetadataQueueFactory, component=factory)
 
 
 def registerProcessingQueue(_context):
-    logger.info("Registering processing queue")
-    factory = _ProcessingQueueFactory()
+    logger.info("Registering metadata redis queue")
+    factory = _MetadataQueueFactory(_context)
     utility(_context, provides=IMetadataQueueFactory, component=factory)

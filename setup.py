@@ -4,9 +4,6 @@ from setuptools import setup, find_packages
 VERSION = '0.0.0'
 
 entry_points = {
-	'console_scripts': [
-		"nti_metadata_processor = nti.metadata.utils.processor:main",
-	],
 	"z3c.autoinclude.plugin": [
 		'target = nti.dataserver'
 	],

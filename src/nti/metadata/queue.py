@@ -36,6 +36,13 @@ from nti.metadata.interfaces import IMetadataEventQueue
 from nti.zope_catalog.interfaces import IMetadataCatalog
 
 
+import zope.deferredimport
+zope.deferredimport.initialize()
+
+#zope.deferredimport.deprecated(
+#    "Import from nti.chatserver.meeting._Meeting instead",
+#   _ModeratedChatRoom='nti.chatserver.meeting:_Meeting')
+
 class _ProxyMap(Mapping):
 
     __slots__ = ('_data',)

@@ -22,6 +22,8 @@ from zope.intid.interfaces import IIntIds
 from nti.dataserver.interfaces import IDataserver
 from nti.dataserver.interfaces import IOIDResolver
 
+from nti.metadata import queue_add
+
 from nti.metadata.interfaces import IMetadataQueue
 
 
@@ -39,10 +41,6 @@ class MockDataserver(object):
         return None
 
 
-def set_in_redis(uid, event):
-    pass
-
-
 def do_evolve(context, generation=generation):
     setHooks()
     conn = context.connection
@@ -58,26 +56,23 @@ def do_evolve(context, generation=generation):
         assert  component.getSiteManager() == ds_folder.getSiteManager(), \
                 "Hooks not installed?"
 
-        meta_queue = lsm.queryUtility(provided=IMetadataQueue,
-                                      name='++etc++metadata++queue')
-        if meta_queue is None:
+        meta_queue = lsm.queryUtility(provided=IMetadataQueue)
+        if meta_queue is not None:
             intids.unregister(meta_queue)
             lsm.unregisterUtility(meta_queue, provided=IMetadataQueue)
-
             try:
                 for queue in meta_queue._queues or ():
                     for uid, event in queue._data.items():
-                        set_in_redis(uid, event)
+                        queue_add(uid, event)
                     queue._data.clear()
                 # reset
                 meta_queue._reset(0)
             except AttributeError:
                 pass
 
-        logger.info('Metadata evolution %s done', generation)
-
     component.getGlobalSiteManager().unregisterUtility(mock_ds, IDataserver)
-
+    logger.info('Metadata evolution %s done', generation)
+        
 
 def evolve(context):
     """

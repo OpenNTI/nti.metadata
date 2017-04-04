@@ -12,7 +12,6 @@ logger = __import__('logging').getLogger(__name__)
 from zope import component
 from zope import interface
 
-from zope.intid.interfaces import IIntIds
 from zope.intid.interfaces import IIntIdAddedEvent
 from zope.intid.interfaces import IIntIdRemovedEvent
 
@@ -21,89 +20,32 @@ from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 
 from nti.dataserver.interfaces import IEntity
 
+from nti.metadata import queue_add
 from nti.metadata import is_indexable
-from nti.metadata import metadata_queue
+from nti.metadata import queue_removed
+from nti.metadata import queue_modififed
 from nti.metadata import dataserver_metadata_catalog
 
 from nti.metadata.utils import delete_entity_metadata
 from nti.metadata.utils import clear_replies_to_creator
 
 
-def query_uid(obj):
-    intids = component.queryUtility(IIntIds)
-    attribute = getattr(intids, 'attribute', '_ds_intid')
-    result = getattr(obj, attribute, None)
-    # Fall back to our utility if we need to.
-    # Extremely slow if we do __len__
-    if result is None and intids is not None:
-        result = intids.queryId(obj)
-    return result
-
-
-def add_2_queue(obj):
-    iid = query_uid(obj)
-    if iid is not None:
-        __traceback_info__ = iid
-        queue = metadata_queue()
-        if queue is not None:
-            queue.add(iid)
-            return True
-    return False
-
-
-def queue_added(obj):
-    if is_indexable(obj):
-        try:
-            return add_2_queue(obj)
-        except TypeError:
-            pass
-    return False
-
-
-def queue_modified(obj):
-    if is_indexable(obj):
-        iid = query_uid(obj)
-        if iid is not None:
-            __traceback_info__ = iid
-            try:
-                queue = metadata_queue()
-                if queue is not None:
-                    queue.update(iid)
-                    return True
-            except TypeError:
-                pass
-    return False
-
-
-def queue_remove(obj):
-    if is_indexable(obj):
-        iid = query_uid(obj)
-        if iid is not None:
-            __traceback_info__ = iid
-            queue = metadata_queue()
-            if queue is not None:
-                queue.remove(iid)
-
-# IIntIdRemovedEvent
+@component.adapter(interface.Interface, IIntIdAddedEvent)
+def _object_added(modeled, event):
+    if is_indexable(modeled):
+        queue_add(modeled)
 
 
 @component.adapter(interface.Interface, IIntIdRemovedEvent)
 def _object_removed(modeled, event):
-    queue_remove(modeled)
-
-# IIntIdAddedEvent
-
-
-@component.adapter(interface.Interface, IIntIdAddedEvent)
-def _object_added(modeled, event):
-    queue_added(modeled)
-
-# IObjectModifiedEvent
+    if is_indexable(modeled):
+        queue_removed(modeled)
 
 
 @component.adapter(interface.Interface, IObjectModifiedEvent)
 def _object_modified(modeled, event):
-    queue_modified(modeled)
+    if is_indexable(modeled):
+        queue_modififed(modeled)
 
 
 @component.adapter(IEntity, IObjectRemovedEvent)

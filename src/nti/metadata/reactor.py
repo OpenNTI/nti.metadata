@@ -25,8 +25,6 @@ from ZODB.POSException import ConflictError
 
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
-from nti.metadata import process_queue
-
 from nti.metadata.interfaces import IIndexReactor
 from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT
 
@@ -62,6 +60,8 @@ POS_ERROR_RT = -2
 #: ZODB conflict error
 CONFLICT_ERROR_RT = -1
 
+def process_queue(*args, **kwargs):
+    pass
 
 def process_index_msgs(ignore_errors=True,
                        use_trx_runner=True,

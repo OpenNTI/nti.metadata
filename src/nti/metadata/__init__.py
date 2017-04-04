@@ -9,6 +9,7 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+import six
 import time
 
 from zope import component
@@ -55,18 +56,7 @@ def dataserver_metadata_catalog():
 
 
 def metadata_queue():
-    factory = component.getUtility(IMetadataQueueFactory)
-    return factory.get_queue()
-
-
-def queue_length(queue=None):
-    queue = queue if queue is not None else metadata_queue()
-    try:
-        result = len(queue)
-    except ValueError:
-        result = 0
-        logger.error("Could not compute queue length")
-    return result
+    pass
 
 
 # queue
@@ -76,31 +66,6 @@ def get_uid(obj, intids=None):
     intids = component.getUtility(IIntIds) if intids is None else intids
     return intids.queryId(obj)
 get_iid = get_uid  # alias
-
-
-def process_queue(limit=QUEUE_LIMIT, sync_queue=True, queue=None, ignore_errors=True):
-    ids = component.getUtility(IIntIds)
-    catalogs = metadata_catalogs()
-    queue = metadata_queue() if queue is None else queue
-
-    # Sync the queue if we have multiple instances running.
-    if sync_queue and queue.syncQueue():
-        logger.debug("Queue synced")
-    queue_size = queue_length(queue)
-
-    limit = queue_size if limit == NO_QUEUE_LIMIT else limit
-    to_process = min(limit, queue_size)
-    if queue_size > 0:
-        now = time.time()
-        done = queue.process(ids,
-                             catalogs,
-                             to_process,
-                             ignore_errors=ignore_errors)
-        queue_size = max(0, queue_size - done)
-        logger.info("%s event(s) processed in %s(s). Queue size %s", done,
-                    time.time() - now, queue_size)
-
-    return to_process
 
 
 def process_event(doc_id, event, ignore_errors=True):
@@ -130,8 +95,12 @@ def process_event(doc_id, event, ignore_errors=True):
 
 
 def queue_add(obj, event=ADDED):
-    doc_id = get_uid(obj)
-    add_to_queue(QUEUE_NAMES[0], process_event, doc_id, ADDED)
+    if isinstance(obj, six.integer_types):
+        doc_id = obj
+    else:
+        doc_id = get_uid(obj)
+    if doc_id is not None:
+        add_to_queue(QUEUE_NAMES[0], process_event, doc_id, ADDED)
 
 
 def queue_modififed(obj):
