@@ -9,6 +9,8 @@
 	<include package="zope.component" />
 	<include package="zope.security" />
 
+	<include package="nti.async" />
+
 	<include package="." file="meta.zcml" />
 
 	<!-- Generations -->

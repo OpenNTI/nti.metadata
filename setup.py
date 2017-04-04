@@ -34,8 +34,8 @@ setup(
 	namespace_packages=['nti'],
 	install_requires=[
 		'setuptools',
+		'nti.async',
 		'zc.catalogqueue',
-		'nti.async'
 	],
 	entry_points=entry_points
 )
