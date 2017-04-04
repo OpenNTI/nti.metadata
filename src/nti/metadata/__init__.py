@@ -75,8 +75,6 @@ def queue_length(queue=None):
 def get_uid(obj, intids=None):
     intids = component.getUtility(IIntIds) if intids is None else intids
     return intids.queryId(obj)
-
-
 get_iid = get_uid  # alias
 
 
