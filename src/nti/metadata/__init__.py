@@ -100,7 +100,7 @@ def queue_add(obj, event=ADDED):
     else:
         doc_id = get_uid(obj)
     if doc_id is not None:
-        add_to_queue(QUEUE_NAMES[0], process_event, doc_id, ADDED)
+        add_to_queue(QUEUE_NAMES[0], process_event, doc_id, event)
 
 
 def queue_modififed(obj):
