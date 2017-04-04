@@ -22,9 +22,6 @@ from nti.dataserver.interfaces import IPrincipalMetadataObjects
 
 from nti.dataserver.metadata_index import CATALOG_NAME
 
-from nti.metadata.interfaces import NO_QUEUE_LIMIT
-from nti.metadata.interfaces import DEFAULT_QUEUE_LIMIT as QUEUE_LIMIT
-
 from nti.metadata.interfaces import IMetadataQueueFactory
 
 from nti.metadata.processing import add_to_queue
