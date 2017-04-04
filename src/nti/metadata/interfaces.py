@@ -15,13 +15,6 @@ from zope import interface
 from zope.deprecation import deprecated
 
 
-#: Default process queue limit
-DEFAULT_QUEUE_LIMIT = 100
-
-#: No queue limit
-NO_QUEUE_LIMIT = -1
-
-
 deprecated('IIndexReactor', 'No longer used')
 class IIndexReactor(interface.Interface):
     pass
