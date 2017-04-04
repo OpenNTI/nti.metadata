@@ -27,7 +27,7 @@ from nti.ntiids.ntiids import make_ntiid
 
 from nti.metadata import dataserver_metadata_catalog
 
-from nti.metadata.subscribers import delete_entity_data
+from nti.metadata.utils import delete_entity_metadata
 
 from nti.dataserver.tests import mock_dataserver
 
@@ -73,7 +73,7 @@ class TestSubscribers(unittest.TestCase):
         results = catalog.searchResults(**query)
         assert_that(results, has_length(notes))
 
-        deleted = delete_entity_data(username)
+        deleted = delete_entity_metadata(catalog, username)
         assert_that(deleted, is_(notes))
 
         results = catalog.searchResults(**query)
