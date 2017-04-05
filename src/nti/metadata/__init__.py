@@ -87,7 +87,7 @@ def process_event(doc_id, event, ignore_errors=True):
             raise
 
 
-def queue_add(obj, event=ADDED):
+def queue_event(obj, event):
     if isinstance(obj, six.integer_types):
         doc_id = obj
     else:
@@ -96,12 +96,16 @@ def queue_add(obj, event=ADDED):
         add_to_queue(QUEUE_NAMES[0], process_event, doc_id, event)
 
 
+def queue_add(obj):
+    queue_event(obj, ADDED)
+
+
 def queue_modififed(obj):
-    queue_add(obj, CHANGED)
+    queue_event(obj, CHANGED)
 
 
 def queue_removed(obj):
-    queue_add(obj, REMOVED)
+    queue_event(obj, REMOVED)
 
 
 # metadata objects
