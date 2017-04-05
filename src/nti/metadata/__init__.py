@@ -52,10 +52,6 @@ def dataserver_metadata_catalog():
     return component.queryUtility(IMetadataCatalog, name=CATALOG_NAME)
 
 
-def metadata_queue():
-    pass
-
-
 # queue
 
 
