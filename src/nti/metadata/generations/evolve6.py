@@ -22,7 +22,7 @@ from zope.intid.interfaces import IIntIds
 from nti.dataserver.interfaces import IDataserver
 from nti.dataserver.interfaces import IOIDResolver
 
-from nti.metadata import queue_add
+from nti.metadata import queue_event
 
 from nti.metadata.interfaces import IMetadataQueue
 
@@ -63,7 +63,7 @@ def do_evolve(context, generation=generation):
             try:
                 for queue in meta_queue._queues or ():
                     for uid, event in queue._data.items():
-                        queue_add(uid, event)
+                        queue_event(uid, event)
                     queue._data.clear()
                 # reset
                 meta_queue._reset(0)
