@@ -47,12 +47,15 @@ def get_job_site(job_site_name=None):
     if job_site_name is None:
         job_site = old_site
     else:
-        dataserver = component.getUtility(IDataserver)
-        ds_folder = dataserver.root_folder['dataserver2']
-        with current_site(ds_folder):
-            job_site = get_site_for_site_names((job_site_name,))
-        if job_site is None or isinstance(job_site, TrivialSite):
-            raise ValueError('No site found for (%s)' % job_site_name)
+        try:
+            dataserver = component.getUtility(IDataserver)
+            ds_folder = dataserver.root_folder['dataserver2']
+            with current_site(ds_folder):
+                job_site = get_site_for_site_names((job_site_name,))
+            if job_site is None or isinstance(job_site, TrivialSite):
+                raise ValueError('No site found for (%s)' % job_site_name)
+        except KeyError: # tests
+            pass
     return job_site
 
 
@@ -63,7 +66,7 @@ def execute_job(*args, **kwargs):
     whatever site we are currently in.
     """
     event_site_name = kwargs.pop('site_name', None)
-    event_site = get_job_site(event_site_name)
+    event_site = get_job_site(event_site_name) or getSite()
     with current_site(event_site):
         func, args = args[0], args[1:]
         return func(*args, **kwargs)
