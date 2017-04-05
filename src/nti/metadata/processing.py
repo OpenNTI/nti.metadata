@@ -47,15 +47,14 @@ def get_job_site(job_site_name=None):
     if job_site_name is None:
         job_site = old_site
     else:
-        try:
-            dataserver = component.getUtility(IDataserver)
-            ds_folder = dataserver.root_folder['dataserver2']
-            with current_site(ds_folder):
-                job_site = get_site_for_site_names((job_site_name,))
-            if job_site is None or isinstance(job_site, TrivialSite):
-                raise ValueError('No site found for (%s)' % job_site_name)
-        except KeyError: # tests
-            pass
+        dataserver = component.getUtility(IDataserver)
+        if 'dataserver2' not in dataserver.root_folder: # tests
+            return None
+        ds_folder = dataserver.root_folder['dataserver2']
+        with current_site(ds_folder):
+            job_site = get_site_for_site_names((job_site_name,))
+        if job_site is None or isinstance(job_site, TrivialSite):
+            raise ValueError('No site found for (%s)' % job_site_name)
     return job_site
 
 
