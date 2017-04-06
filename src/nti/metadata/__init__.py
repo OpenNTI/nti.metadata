@@ -18,6 +18,8 @@ from zope.catalog.interfaces import INoAutoIndex
 
 from zope.intid.interfaces import IIntIds
 
+from nti.dataserver.interfaces import IRedisClient
+
 from nti.dataserver.interfaces import IPrincipalMetadataObjects
 
 from nti.dataserver.metadata_index import CATALOG_NAME
@@ -38,6 +40,13 @@ ADDED = 1
 CHANGED = 2
 MODIFIED = CHANGED
 EVENT_TYPES = (REMOVED, CHANGED, ADDED)
+
+_redis = None
+def redis():
+    global _redis
+    if _redis is None:
+        _redis = component.queryUtility(IRedisClient)
+    return _redis
 
 
 def is_indexable(obj):
@@ -88,6 +97,8 @@ def process_event(doc_id, event, ignore_errors=True):
 
 
 def queue_event(obj, event):
+    if redis() is None:
+        return
     if isinstance(obj, six.integer_types):
         doc_id = obj
     else:
