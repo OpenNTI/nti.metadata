@@ -47,8 +47,9 @@ def get_job_site(job_site_name=None):
     if job_site_name is None:
         job_site = old_site
     else:
-        dataserver = component.getUtility(IDataserver)
-        if 'dataserver2' not in dataserver.root_folder: # tests
+        dataserver = component.queryUtility(IDataserver)
+        if  dataserver is None or \
+            'dataserver2' not in dataserver.root_folder: # tests
             return None
         ds_folder = dataserver.root_folder['dataserver2']
         with current_site(ds_folder):
