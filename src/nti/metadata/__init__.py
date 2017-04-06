@@ -41,6 +41,7 @@ CHANGED = 2
 MODIFIED = CHANGED
 EVENT_TYPES = (REMOVED, CHANGED, ADDED)
 
+
 _redis = None
 def redis():
     global _redis
@@ -67,6 +68,8 @@ def dataserver_metadata_catalog():
 def get_uid(obj, intids=None):
     intids = component.queryUtility(IIntIds) if intids is None else intids
     return intids.queryId(obj) if intids is not None else None
+
+
 get_iid = get_uid  # alias
 
 
