@@ -68,8 +68,6 @@ def dataserver_metadata_catalog():
 def get_uid(obj, intids=None):
     intids = component.queryUtility(IIntIds) if intids is None else intids
     return intids.queryId(obj) if intids is not None else None
-
-
 get_iid = get_uid  # alias
 
 
