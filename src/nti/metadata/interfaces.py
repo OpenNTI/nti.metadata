@@ -34,3 +34,8 @@ class IMetadataQueueFactory(interface.Interface):
     """
     A factory for metadata queues.
     """
+
+class INoMetadataAutoIndex(interface.Interface):
+    """
+    Marker for objects that should not be automatically indexed
+    """

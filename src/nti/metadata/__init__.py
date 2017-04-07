@@ -24,6 +24,7 @@ from nti.dataserver.interfaces import IPrincipalMetadataObjects
 
 from nti.dataserver.metadata_index import CATALOG_NAME
 
+from nti.metadata.interfaces import INoMetadataAutoIndex
 from nti.metadata.interfaces import IMetadataQueueFactory
 
 from nti.metadata.processing import add_to_queue
@@ -51,7 +52,8 @@ def redis():
 
 
 def is_indexable(obj):
-    return not INoAutoIndex.providedBy(obj)
+    return  not INoAutoIndex.providedBy(obj) \
+        and not INoMetadataAutoIndex.providedBy(obj)
 
 
 def metadata_catalogs():
