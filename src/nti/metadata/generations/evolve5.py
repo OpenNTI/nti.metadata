@@ -68,9 +68,8 @@ def do_evolve(context, generation=generation):
                                                               family=intids.family)
             topics.addFilter(the_filter)
 
-        logger.info('Metadata evolution %s done', generation)
-
     component.getGlobalSiteManager().unregisterUtility(mock_ds, IDataserver)
+    logger.info('Metadata evolution %s done', generation)
 
 
 def evolve(context):
