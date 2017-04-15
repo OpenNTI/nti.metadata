@@ -74,15 +74,14 @@ def clear_replies_to_creator(catalog, username):
         index = catalog[ix_name]
         query = {ix_name: {'any_of': (username,)}}
         results = catalog.searchResults(**query)
-        for uid in results.uids:
+        for uid in results.uids or ():
             index.unindex_doc(uid)
 
     # These, though, may still be shared, so we need to reindex them
     index = catalog[IX_SHAREDWITH]
     results = catalog.searchResults(sharedWith={'all_of': (username,)})
     intid_util = results.uidutil
-    uids = list(results.uids or ())
-    for uid in uids:
+    for uid in list(results.uids or ()):
         obj = intid_util.queryObject(uid)
         if obj is not None:
             index.index_doc(uid, obj)
