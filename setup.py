@@ -32,7 +32,19 @@ setup(
 	install_requires=[
 		'setuptools',
 		'nti.async',
+		'nti.coremetadata',
+		'nti.site',
+		'nti.zodb',
+		'nti.zope_catalog',
 		'zc.catalogqueue',
+		'zope.catalog',
+		'zope.component',
+		'zope.deprecation',
+		'zope.interface',
+		'zope.intid',
+		'zope.lifecycleevent',
+		'zope.location',
+		'zope.security',
 	],
 	entry_points=entry_points
 )
