@@ -15,18 +15,15 @@ from zope.location.interfaces import IContained
 
 from zope.deprecation import deprecated
 
-from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
-
-from zc.catalogqueue.queue import CatalogQueue
-
+from persistent import Persistent
 
 deprecated("MetadataEventQueue", "no longer used")
 @interface.implementer(IContained)
-class MetadataEventQueue(CatalogEventQueue):
+class MetadataEventQueue(Persistent):
     __parent__ = __name__ = None
 
 
 deprecated("MetadataQueue", "no longer used")
 @interface.implementer(IContained)
-class MetadataQueue(CatalogQueue):
+class MetadataQueue(Persistent):
     __parent__ = __name__ = None

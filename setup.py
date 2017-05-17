@@ -36,7 +36,6 @@ setup(
         'nti.site',
         'nti.zodb',
         'nti.zope_catalog',
-        'zc.catalogqueue',
         'zope.catalog',
         'zope.component',
         'zope.deprecation',
