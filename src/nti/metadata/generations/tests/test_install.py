@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
@@ -13,7 +13,6 @@ from hamcrest import assert_that
 import unittest
 
 from nti.dataserver.tests import mock_dataserver
-from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
 
 from nti.metadata.tests import SharedConfiguringTestLayer
 
@@ -22,7 +21,7 @@ class TestFunctionalInstall(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
-    @WithMockDSTrans
+    @mock_dataserver.WithMockDSTrans
     def test_installed(self):
         conn = mock_dataserver.current_transaction
         root = conn.root()
