@@ -16,42 +16,20 @@
 	<!-- Generations -->
 	<utility factory=".generations.install._MetadataSchemaManager"
 			 name="nti.dataserver-metadata"
-			 provides="zope.generations.interfaces.IInstallableSchemaManager"/>
+			 provides="zope.generations.interfaces.IInstallableSchemaManager" />
 
 	<!-- Subscribers -->
 	<subscriber handler=".subscribers._object_added"
-				for="* zope.intid.interfaces.IIntIdAddedEvent"/>
+				for="* zope.intid.interfaces.IIntIdAddedEvent" />
 
 	<subscriber handler=".subscribers._object_removed"
-				for="* zope.intid.interfaces.IIntIdRemovedEvent"/>
+				for="* zope.intid.interfaces.IIntIdRemovedEvent" />
 
 	<subscriber handler=".subscribers._object_modified"
-				for="* zope.lifecycleevent.interfaces.IObjectModifiedEvent"/>
+				for="* zope.lifecycleevent.interfaces.IObjectModifiedEvent" />
 
-	<subscriber handler=".subscribers._on_entity_removed" />
-	<subscriber handler=".subscribers.clear_replies_to_creator_when_creator_removed" />
-
-	<subscriber	factory=".predicates._ContainedPrincipalObjects"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
-		
-	<subscriber	factory=".predicates._FriendsListsPrincipalObjects"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
-					
-	<subscriber	factory=".predicates._MessageInfoPrincipalObjects"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
-		
-	<subscriber	factory=".predicates._MeetingPrincipalObjects"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
-		
-	<subscriber	factory=".predicates._DFLBlogObjects"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
-						
-	<subscriber	factory=".predicates._CommunityBlogObjects"
-				provides="nti.dataserver.interfaces.IPrincipalMetadataObjects" />
-	
 	<!-- Register our queue -->
 	<configure zcml:condition="have devmode">
-
 		<configure zcml:condition="not-have testmode">
 			<meta:registerProcessingQueue />
 		</configure>
@@ -60,7 +38,6 @@
 			<!-- For testing and rollback, if needed -->
 			<meta:registerImmediateProcessingQueue />
 		</configure>
-
 	</configure>
 
 	<configure zcml:condition="not-have devmode">

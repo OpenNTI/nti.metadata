@@ -18,11 +18,7 @@ from zope.catalog.interfaces import INoAutoIndex
 
 from zope.intid.interfaces import IIntIds
 
-from nti.dataserver.interfaces import IRedisClient
-
-from nti.dataserver.interfaces import IPrincipalMetadataObjects
-
-from nti.dataserver.metadata_index import CATALOG_NAME
+from nti.coremetadata.interfaces import IRedisClient
 
 from nti.metadata.interfaces import INoMetadataAutoIndex
 from nti.metadata.interfaces import IMetadataQueueFactory
@@ -61,6 +57,7 @@ def metadata_catalogs():
 
 
 def dataserver_metadata_catalog():
+    from nti.dataserver.metadata.index import CATALOG_NAME
     return component.queryUtility(IMetadataCatalog, name=CATALOG_NAME)
 
 
@@ -120,23 +117,3 @@ def queue_modififed(obj):
 
 def queue_removed(obj):
     queue_event(obj, REMOVED)
-
-
-# metadata objects
-
-
-def get_principal_metadata_objects(principal):
-    predicates = component.subscribers((principal,), IPrincipalMetadataObjects)
-    for predicate in list(predicates):
-        for obj in predicate.iter_objects():
-            if not isBroken(obj):
-                yield obj
-
-
-def get_principal_metadata_objects_intids(principal):
-    intids = component.getUtility(IIntIds)
-    for obj in get_principal_metadata_objects(principal):
-        if not isBroken(obj):
-            uid = get_uid(obj, intids=intids)
-            if uid is not None:
-                yield uid
