@@ -29,7 +29,6 @@ from nti.zodb import isBroken
 
 from nti.zope_catalog.interfaces import IMetadataCatalog
 
-
 QUEUE_NAMES = ('++etc++metadata++queue',)
 
 REMOVED = 0
@@ -54,11 +53,6 @@ def is_indexable(obj):
 
 def metadata_catalogs():
     return tuple(catalog for _, catalog in component.getUtilitiesFor(IMetadataCatalog))
-
-
-def dataserver_metadata_catalog():
-    from nti.dataserver.metadata.index import CATALOG_NAME
-    return component.queryUtility(IMetadataCatalog, name=CATALOG_NAME)
 
 
 # queue
