@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
@@ -17,7 +17,8 @@ from nti.metadata.interfaces import IMetadataQueueFactory
 
 import nti.testing.base
 
-ZCML_STRING = """
+
+ZCML_STRING = u"""
 <configure  xmlns="http://namespaces.zope.org/zope"
             xmlns:zcml="http://namespaces.zope.org/zcml"
             xmlns:metadata="http://nextthought.com/metadata"
@@ -38,6 +39,5 @@ class TestZcml(nti.testing.base.ConfiguringTestBase):
 
     def test_registration(self):
         self.configure_string(ZCML_STRING)
-
         factory = component.queryUtility(IMetadataQueueFactory)
         assert_that(factory, is_not(none()))
