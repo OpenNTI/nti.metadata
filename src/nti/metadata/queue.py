@@ -4,7 +4,7 @@
 .. $Id$
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -16,6 +16,7 @@ from zope.location.interfaces import IContained
 from zope.deprecation import deprecated
 
 from persistent import Persistent
+
 
 deprecated("MetadataEventQueue", "no longer used")
 @interface.implementer(IContained)

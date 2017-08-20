@@ -24,18 +24,18 @@ from nti.metadata import queue_modififed
 
 
 @component.adapter(interface.Interface, IIntIdAddedEvent)
-def _object_added(modeled, event):
+def _object_added(modeled, _):
     if is_indexable(modeled):
         queue_add(modeled)
 
 
 @component.adapter(interface.Interface, IIntIdRemovedEvent)
-def _object_removed(modeled, event):
+def _object_removed(modeled, _):
     if is_indexable(modeled):
         queue_removed(modeled)
 
 
 @component.adapter(interface.Interface, IObjectModifiedEvent)
-def _object_modified(modeled, event):
+def _object_modified(modeled, _):
     if is_indexable(modeled):
         queue_modififed(modeled)

@@ -33,7 +33,7 @@ class SharedConfiguringTestLayer(ZopeComponentLayer,
         zope.testing.cleanup.cleanUp()
 
     @classmethod
-    def testSetUp(cls, test=None):
+    def testSetUp(cls, unused_test=None):
         setHooks()
 
     @classmethod
