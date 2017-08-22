@@ -10,6 +10,7 @@ entry_points = {
 TESTS_REQUIRE = [
     'nti.testing',
     'zope.testrunner',
+    'zope.dottedname',
 ]
 
 
@@ -49,9 +50,11 @@ setup(
         'nti.site',
         'nti.zodb',
         'nti.zope_catalog',
+        'persistent',
         'zope.catalog',
         'zope.component',
         'zope.deprecation',
+        'zope.generations',
         'zope.interface',
         'zope.intid',
         'zope.lifecycleevent',
