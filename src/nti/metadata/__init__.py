@@ -74,7 +74,7 @@ def process_event(doc_id, event, ignore_errors=True):
         else:
             ob = intids.queryObject(doc_id)
             if ob is None:
-                logger.warn("Couldn't find object for %s", doc_id)
+                logger.debug("Couldn't find object for %s", doc_id)
             elif isBroken(ob):
                 logger.warn("Ignoring broken object with id %s", doc_id)
             else:
