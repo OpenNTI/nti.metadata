@@ -105,8 +105,8 @@ html_static_path = ['_static']
 
 # -- Options for HTMLHelp output ------------------------------------------
 
-# Output file metadata name for HTML help builder.
-htmlhelp_metadataname = 'ntimetadatadoc'
+# Output file base name for HTML help builder.
+htmlhelp_basename = 'ntimetadatadoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
