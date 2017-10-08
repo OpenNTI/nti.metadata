@@ -13,11 +13,6 @@
 
 	<include package="." file="meta.zcml" />
 
-	<!-- Generations -->
-	<utility factory=".generations.install._MetadataSchemaManager"
-			 name="nti.dataserver-metadata"
-			 provides="zope.generations.interfaces.IInstallableSchemaManager" />
-
 	<!-- Subscribers -->
 	<subscriber handler=".subscribers._object_added"
 				for="* zope.intid.interfaces.IIntIdAddedEvent" />

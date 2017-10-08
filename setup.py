@@ -54,7 +54,6 @@ setup(
         'zope.catalog',
         'zope.component',
         'zope.deprecation',
-        'zope.generations',
         'zope.interface',
         'zope.intid',
         'zope.lifecycleevent',
