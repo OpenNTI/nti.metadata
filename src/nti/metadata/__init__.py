@@ -4,13 +4,11 @@
 .. $Id$
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 import six
-import time
 
 from zope import component
 
@@ -21,7 +19,6 @@ from zope.intid.interfaces import IIntIds
 from nti.coremetadata.interfaces import IRedisClient
 
 from nti.metadata.interfaces import INoMetadataAutoIndex
-from nti.metadata.interfaces import IMetadataQueueFactory
 
 from nti.metadata.processing import add_to_queue
 
@@ -36,6 +33,8 @@ ADDED = 1
 CHANGED = 2
 MODIFIED = CHANGED
 EVENT_TYPES = (REMOVED, CHANGED, ADDED)
+
+logger = __import__('logging').getLogger(__name__)
 
 
 _redis = None
