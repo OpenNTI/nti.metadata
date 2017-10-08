@@ -2,15 +2,15 @@
  Reference
 ===========
 
+Metadata
+========
+
+.. automodule:: nti.metadata
+
 Interfaces
 ==========
 
 .. automodule:: nti.metadata.interfaces
-
-Utilities
-=========
-
-.. automodule:: nti.metadata
 
 Processing
 ===========
