@@ -24,7 +24,7 @@ from nti.metadata.processing import add_to_queue
 
 from nti.zodb import isBroken
 
-from nti.zope_catalog.interfaces import IMetadataCatalog
+from nti.zope_catalog.interfaces import IDeferredCatalog
 
 QUEUE_NAMES = ('++etc++metadata++queue',)
 
@@ -51,7 +51,7 @@ def is_indexable(obj):
 
 
 def metadata_catalogs():
-    return tuple(component.getAllUtilitiesRegisteredFor(IMetadataCatalog))
+    return tuple(component.getAllUtilitiesRegisteredFor(IDeferredCatalog))
 
 
 # queue
@@ -78,7 +78,7 @@ def process_event(doc_id, event, ignore_errors=True):
                 logger.warn("Ignoring broken object with id %s", doc_id)
             else:
                 for catalog in catalogs:
-                    if IMetadataCatalog.providedBy(catalog):
+                    if hasattr(catalog, 'force_index_doc'):
                         catalog.force_index_doc(doc_id, ob)
                     else:
                         catalog.index_doc(doc_id, ob)
