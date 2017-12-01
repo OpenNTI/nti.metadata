@@ -19,11 +19,11 @@ from nti.asynchronous.interfaces import IRedisQueue
 
 from nti.asynchronous.redis_queue import RedisQueue
 
+from nti.coremetadata.interfaces import IRedisClient
+
 from nti.metadata import QUEUE_NAMES
 
 from nti.metadata.interfaces import IMetadataQueueFactory
-
-from nti.dataserver.interfaces import IRedisClient
 
 logger = __import__('logging').getLogger(__name__)
 

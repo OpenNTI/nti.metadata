@@ -8,6 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+# pylint: disable=E0239
+
 from zope import interface
 
 from zope.deprecation import deprecated
