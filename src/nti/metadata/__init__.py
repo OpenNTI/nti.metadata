@@ -39,12 +39,8 @@ EVENT_TYPES = (REMOVED, CHANGED, ADDED)
 logger = __import__('logging').getLogger(__name__)
 
 
-_redis = None
 def redis():
-    global _redis
-    if _redis is None:
-        _redis = component.queryUtility(IRedisClient)
-    return _redis
+    return component.queryUtility(IRedisClient)
 
 
 def is_indexable(obj):
@@ -59,15 +55,19 @@ def metadata_catalogs():
 # queue
 
 
+def get_intids():
+    return component.getUtility(IIntIds)
+
+
 def get_uid(obj, intids=None):
-    intids = component.queryUtility(IIntIds) if intids is None else intids
+    intids = get_intids() if intids is None else intids
     return intids.queryId(obj) if intids is not None else None
 get_iid = get_uid  # alias
 
 
 def process_event(doc_id, event, ignore_errors=True):
+    intids = get_intids()
     catalogs = metadata_catalogs()
-    intids = component.getUtility(IIntIds)
     try:
         if event is REMOVED:
             for catalog in catalogs:

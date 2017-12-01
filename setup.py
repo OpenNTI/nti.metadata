@@ -54,6 +54,7 @@ setup(
         'nti.zodb',
         'nti.zope_catalog',
         'persistent',
+        'six',
         'zope.catalog',
         'zope.component',
         'zope.deprecation',
