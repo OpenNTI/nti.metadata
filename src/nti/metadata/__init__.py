@@ -56,7 +56,7 @@ def metadata_catalogs():
 
 
 def get_intids():
-    return component.getUtility(IIntIds)
+    return component.queryUtility(IIntIds)
 
 
 def get_uid(obj, intids=None):
