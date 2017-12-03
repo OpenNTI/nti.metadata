@@ -67,7 +67,7 @@ class _MetadataQueueFactory(_AbstractProcessingQueueFactory):
             utility(_context, provides=IRedisQueue, component=queue, name=name)
 
     def _redis(self):
-        return component.getUtility(IRedisClient)
+        return component.queryUtility(IRedisClient)
 
 
 def registerImmediateProcessingQueue(_context):
