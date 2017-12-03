@@ -44,7 +44,7 @@ def redis():
 
 
 def is_indexable(obj):
-    return  not INoAutoIndex.providedBy(obj) \
+    return not INoAutoIndex.providedBy(obj) \
         and not INoMetadataAutoIndex.providedBy(obj)
 
 
@@ -66,6 +66,7 @@ get_iid = get_uid  # alias
 
 
 def process_event(doc_id, event, ignore_errors=True):
+    result = True
     intids = get_intids()
     catalogs = metadata_catalogs()
     try:
@@ -75,8 +76,10 @@ def process_event(doc_id, event, ignore_errors=True):
         else:
             ob = intids.queryObject(doc_id)
             if ob is None:
+                result = False
                 logger.debug("Couldn't find object for %s", doc_id)
             elif isBroken(ob):
+                result = False
                 logger.warn("Ignoring broken object with id %s", doc_id)
             else:
                 for catalog in catalogs:
@@ -85,22 +88,25 @@ def process_event(doc_id, event, ignore_errors=True):
                     else:
                         catalog.index_doc(doc_id, ob)
     except Exception:
+        result = False
         if ignore_errors:
             logger.exception("Error while indexing object with id %s", id)
         else:
             raise
+    return result
 
 
 def queue_event(obj, event):
     if redis() is None:
-        return
+        return False
     if isinstance(obj, six.integer_types):
         doc_id = obj
     else:
         doc_id = get_uid(obj)
     if doc_id is not None:
         add_to_queue(QUEUE_NAMES[0], process_event, doc_id, event)
-
+        return True
+    return False
 
 def queue_add(obj):
     queue_event(obj, ADDED)

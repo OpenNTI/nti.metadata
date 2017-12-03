@@ -9,7 +9,6 @@ from __future__ import absolute_import
 # pylint: disable=W0212,R0904
 
 from hamcrest import is_
-from hamcrest import none
 from hamcrest import raises
 from hamcrest import calling
 from hamcrest import assert_that
@@ -108,9 +107,9 @@ class TestMetdata(unittest.TestCase):
         intid = MockIntId()
         gsm.registerUtility(intid, IIntIds)
 
-        process_event(1, ADDED)
-        process_event(2, ADDED)
-        process_event(3, ADDED)
+        assert_that(process_event(1, ADDED), is_(False))
+        assert_that(process_event(2, ADDED), is_(False))
+        assert_that(process_event(3, ADDED), is_(False))
 
         assert_that(calling(process_event).with_args(3, ADDED, False),
                     raises(TypeError))
@@ -120,7 +119,7 @@ class TestMetdata(unittest.TestCase):
 
     @fudge.patch('nti.metadata.add_to_queue')
     def test_queue_event(self, mock_aq):
-        assert_that(queue_event(None, ADDED), is_(none()))
+        assert_that(queue_event(None, ADDED), is_(False))
 
         redis = fakeredis.FakeStrictRedis(db=102)
         gsm = component.getGlobalSiteManager()
@@ -128,6 +127,7 @@ class TestMetdata(unittest.TestCase):
 
         mock_aq.is_callable().returns_fake()
 
-        queue_event(1, ADDED)
+        assert_that(queue_event(1, ADDED), is_(True))
+        assert_that(queue_event(fudge.Fake(), ADDED), is_(False))
 
         gsm.unregisterUtility(redis, IRedisClient)
