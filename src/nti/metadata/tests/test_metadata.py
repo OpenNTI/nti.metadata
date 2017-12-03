@@ -17,7 +17,11 @@ import fudge
 from zope import component
 from zope import lifecycleevent
 
+from zope.event import notify
+
 from zope.intid.interfaces import IIntIds
+from zope.intid.interfaces import IntIdAddedEvent
+from zope.intid.interfaces import IntIdRemovedEvent
 
 from nti.coremetadata.interfaces import IRedisClient
 
@@ -33,7 +37,7 @@ class TestMetdata(unittest.TestCase):
     layer = SharedConfiguringTestLayer
 
     def test_events(self):
-        fake_obj = fudge.Fake().has_attr(__parent__=None).has_attr(__name__=None)
+        fake_obj = fudge.Fake()
         catalog = DeferredCatalog()
         redis = fakeredis.FakeStrictRedis(db=102)
 
@@ -54,6 +58,8 @@ class TestMetdata(unittest.TestCase):
         intid = MockIntId()
         gsm.registerUtility(intid, IIntIds)
 
-        lifecycleevent.added(fake_obj)
+        notify(IntIdAddedEvent(fake_obj, None, intid))
+        
         lifecycleevent.modified(fake_obj)
-        lifecycleevent.removed(fake_obj)
+
+        notify(IntIdRemovedEvent(fake_obj, None))

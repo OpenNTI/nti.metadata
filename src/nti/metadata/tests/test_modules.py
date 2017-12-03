@@ -17,3 +17,6 @@ class TestImport(unittest.TestCase):
 
     def test_import_interfaces(self):
         dottedname.resolve('nti.metadata.interfaces')
+
+    def test_import_queues(self):
+        dottedname.resolve('nti.metadata.queue')

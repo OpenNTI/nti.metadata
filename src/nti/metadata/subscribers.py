@@ -24,14 +24,16 @@ from nti.metadata import queue_modififed
 logger = __import__('logging').getLogger(__name__)
 
 
-@component.adapter(interface.Interface, IIntIdAddedEvent)
-def _object_added(modeled, _):
+@component.adapter(IIntIdAddedEvent)
+def _object_added(event):
+    modeled = event.object
     if is_indexable(modeled):
         queue_add(modeled)
 
 
-@component.adapter(interface.Interface, IIntIdRemovedEvent)
-def _object_removed(modeled, _):
+@component.adapter(IIntIdRemovedEvent)
+def _object_removed(event):
+    modeled = event.object
     if is_indexable(modeled):
         queue_removed(modeled)
 

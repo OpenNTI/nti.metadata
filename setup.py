@@ -12,6 +12,7 @@ TESTS_REQUIRE = [
     'fakeredis',
     'fudge',
     'nti.testing',
+    'zope.event',
     'zope.testrunner',
     'zope.dottedname',
 ]
