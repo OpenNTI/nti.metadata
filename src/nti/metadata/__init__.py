@@ -8,7 +8,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-# pylint: disable=W0603,W0703
+# pylint: disable=global-statement
 
 import six
 
@@ -87,7 +87,7 @@ def process_event(doc_id, event, ignore_errors=True):
                         catalog.force_index_doc(doc_id, ob)
                     else:
                         catalog.index_doc(doc_id, ob)
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         result = False
         if ignore_errors:
             logger.exception("Error while indexing object with id %s", id)
@@ -107,6 +107,7 @@ def queue_event(obj, event):
         add_to_queue(QUEUE_NAMES[0], process_event, doc_id, event)
         return True
     return False
+
 
 def queue_add(obj):
     queue_event(obj, ADDED)
