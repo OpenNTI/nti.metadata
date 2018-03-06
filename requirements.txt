@@ -1,4 +1,5 @@
 -e git+https://github.com/NextThought/nti.base.git@master#egg=nti.base
+-e git+https://github.com/NextThought/nti.mimetype.git@master#egg=nti.mimetype
 -e git+https://github.com/NextThought/nti.asynchronous.git@master#egg=nti.asynchronous
 -e git+https://github.com/NextThought/nti.coremetadata.git@master#egg=nti.coremetadata
 -e git+https://github.com/NextThought/nti.contenttypes.reports.git@master#egg=nti.contenttypes.reports
