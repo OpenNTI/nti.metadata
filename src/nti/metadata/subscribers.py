@@ -16,10 +16,10 @@ from zope.intid.interfaces import IIntIdRemovedEvent
 
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 
-from nti.metadata import queue_add
 from nti.metadata import is_indexable
-from nti.metadata import queue_removed
-from nti.metadata import queue_modififed
+from nti.metadata import queue_metadata_add
+from nti.metadata import queue_metadata_removed
+from nti.metadata import queue_metadata_modififed
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -28,17 +28,17 @@ logger = __import__('logging').getLogger(__name__)
 def _object_added(event):
     modeled = event.object
     if is_indexable(modeled):
-        queue_add(modeled)
+        queue_metadata_add(modeled)
 
 
 @component.adapter(IIntIdRemovedEvent)
 def _object_removed(event):
     modeled = event.object
     if is_indexable(modeled):
-        queue_removed(modeled)
+        queue_metadata_removed(modeled)
 
 
 @component.adapter(interface.Interface, IObjectModifiedEvent)
-def _object_modified(modeled, _):
+def _object_modified(modeled, unused_event=None):
     if is_indexable(modeled):
-        queue_modififed(modeled)
+        queue_metadata_modififed(modeled)

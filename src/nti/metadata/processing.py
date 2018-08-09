@@ -49,7 +49,7 @@ def get_job_site(job_site_name=None):
         job_site = old_site
     else:
         dataserver = component.queryUtility(IDataserver)
-        if     dataserver is None \
+        if      dataserver is None \
             or 'dataserver2' not in dataserver.root_folder:  # tests
             return None
         ds_folder = dataserver.root_folder['dataserver2']
@@ -89,7 +89,7 @@ def put_metadata_job(queue_name, func, job_id, site_name=None, **kwargs):
     return job
 
 
-def add_to_queue(queue_name, func, doc_id, event, site_name=None, **kwargs):
+def add_metadata_to_queue(queue_name, func, doc_id, event, site_name=None, **kwargs):
     job_id = "%s_%s" % (doc_id, event)
     return put_metadata_job(queue_name,
                             func,
@@ -98,3 +98,4 @@ def add_to_queue(queue_name, func, doc_id, event, site_name=None, **kwargs):
                             doc_id=doc_id,
                             site_name=site_name,
                             **kwargs)
+add_to_queue = add_metadata_to_queue  # BWC
