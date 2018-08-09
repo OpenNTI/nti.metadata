@@ -22,7 +22,7 @@ from nti.coremetadata.interfaces import IRedisClient
 
 from nti.metadata.interfaces import INoMetadataAutoIndex
 
-from nti.metadata.processing import add_to_queue
+from nti.metadata.processing import add_metadata_to_queue
 
 from nti.zodb import isBroken
 
@@ -80,7 +80,7 @@ def process_event(doc_id, event, ignore_errors=True):
                 logger.debug("Couldn't find object for %s", doc_id)
             elif isBroken(ob):
                 result = False
-                logger.warn("Ignoring broken object with id %s", doc_id)
+                logger.warning("Ignoring broken object with id %s", doc_id)
             else:
                 for catalog in catalogs:
                     if hasattr(catalog, 'force_index_doc'):
@@ -96,7 +96,7 @@ def process_event(doc_id, event, ignore_errors=True):
     return result
 
 
-def queue_event(obj, event):
+def queue_metadata_event(obj, event):
     if redis() is None:
         return False
     if isinstance(obj, six.integer_types):
@@ -104,18 +104,22 @@ def queue_event(obj, event):
     else:
         doc_id = get_uid(obj)
     if doc_id is not None:
-        add_to_queue(QUEUE_NAMES[0], process_event, doc_id, event)
+        add_metadata_to_queue(QUEUE_NAMES[0], process_event, doc_id, event)
         return True
     return False
+queue_event = queue_metadata_event # BWC
 
 
-def queue_add(obj):
-    queue_event(obj, ADDED)
+def queue_metadata_add(obj):
+    queue_metadata_event(obj, ADDED)
+queue_add = queue_metadata_add # BWC
 
 
-def queue_modififed(obj):
-    queue_event(obj, CHANGED)
+def queue_metadata_modififed(obj):
+    queue_metadata_event(obj, CHANGED)
+queue_modififed = queue_metadata_modififed # BWC
 
 
-def queue_removed(obj):
-    queue_event(obj, REMOVED)
+def queue_metadata_removed(obj):
+    queue_metadata_event(obj, REMOVED)
+queue_removed = queue_metadata_removed # BWC

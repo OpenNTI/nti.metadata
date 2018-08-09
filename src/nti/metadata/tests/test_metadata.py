@@ -116,7 +116,7 @@ class TestMetdata(unittest.TestCase):
         gsm.unregisterUtility(intid, IIntIds)
         gsm.unregisterUtility(catalog, IDeferredCatalog)
 
-    @fudge.patch('nti.metadata.add_to_queue')
+    @fudge.patch('nti.metadata.add_metadata_to_queue')
     def test_queue_event(self, mock_aq):
         assert_that(queue_event(None, ADDED), is_(False))
 
