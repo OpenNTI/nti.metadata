@@ -14,15 +14,21 @@ import six
 
 from zope import component
 
-from zope.catalog.interfaces import INoAutoIndex
+from zope.catalog.interfaces import ICatalog
+from zope.catalog.interfaces import INoAutoIndex 
 
 from zope.intid.interfaces import IIntIds
 
+from nti.coremetadata.interfaces import IX_LASTSEEN_TIME
+from nti.coremetadata.interfaces import ENTITY_CATALOG_NAME
+
+from nti.coremetadata.interfaces import IUser
 from nti.coremetadata.interfaces import IRedisClient
 
 from nti.metadata.interfaces import INoMetadataAutoIndex
 
 from nti.metadata.processing import add_metadata_to_queue
+from nti.metadata.processing import add_user_event_to_queue
 
 from nti.zodb import isBroken
 
@@ -45,11 +51,15 @@ def redis():
 
 def is_indexable(obj):
     return not INoAutoIndex.providedBy(obj) \
-        and not INoMetadataAutoIndex.providedBy(obj)
+       and not INoMetadataAutoIndex.providedBy(obj)
 
 
 def metadata_catalogs():
     return tuple(component.getAllUtilitiesRegisteredFor(IDeferredCatalog))
+
+
+def entity_catalog():
+    return component.queryUtility(ICatalog, name=ENTITY_CATALOG_NAME)
 
 
 # queue
@@ -63,6 +73,14 @@ def get_uid(obj, intids=None):
     intids = get_intids() if intids is None else intids
     return intids.queryId(obj) if intids is not None else None
 get_iid = get_uid  # alias
+
+
+def get_obj_uid(obj):
+    if isinstance(obj, six.integer_types):
+        doc_id = obj
+    else:
+        doc_id = get_uid(obj)
+    return doc_id
 
 
 def process_event(doc_id, event, ignore_errors=True):
@@ -90,7 +108,7 @@ def process_event(doc_id, event, ignore_errors=True):
     except Exception:  # pylint: disable=broad-except
         result = False
         if ignore_errors:
-            logger.exception("Error while indexing object with id %s", id)
+            logger.exception("Error while indexing object with id %s", doc_id)
         else:
             raise
     return result
@@ -99,10 +117,7 @@ def process_event(doc_id, event, ignore_errors=True):
 def queue_metadata_event(obj, event):
     if redis() is None:
         return False
-    if isinstance(obj, six.integer_types):
-        doc_id = obj
-    else:
-        doc_id = get_uid(obj)
+    doc_id = get_obj_uid(obj)
     if doc_id is not None:
         add_metadata_to_queue(QUEUE_NAMES[0], process_event, doc_id, event)
         return True
@@ -123,3 +138,32 @@ queue_modififed = queue_metadata_modififed # BWC
 def queue_metadata_removed(obj):
     queue_metadata_event(obj, REMOVED)
 queue_removed = queue_metadata_removed # BWC
+
+
+# users
+
+
+def process_last_seen_event(doc_id, ignore_errors=True):
+    result = True
+    intids = get_intids()
+    catalog = entity_catalog()
+    try:
+        if catalog is not None and IX_LASTSEEN_TIME in catalog:
+            obj = intids.queryObject(doc_id)
+            if IUser.providedBy(obj):
+                catalog[IX_LASTSEEN_TIME].index_doc(doc_id, obj)
+    except Exception:  # pylint: disable=broad-except
+        result = False
+        if ignore_errors:
+            logger.exception("Error while indexing user object id %s", doc_id)
+        else:
+            raise
+    return result
+
+
+def queue_user_last_seen_event(obj):
+    doc_id = get_obj_uid(obj)
+    if doc_id is not None:
+        add_user_event_to_queue(QUEUE_NAMES[0], process_last_seen_event, doc_id)
+        return True
+    return False
