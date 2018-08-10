@@ -37,6 +37,9 @@ class ImmediateQueueRunner(object):
     def put(self, job):
         job()
 
+    def __contains__(self, unused_key):
+        return False
+
 
 @interface.implementer(IMetadataQueueFactory)
 class _ImmediateQueueFactory(object):
