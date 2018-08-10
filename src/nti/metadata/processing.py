@@ -26,6 +26,17 @@ from nti.site.transient import TrivialSite
 logger = __import__('logging').getLogger(__name__)
 
 
+def job_in_queue(jid, queue, safe=True):
+    try:
+        result = jid in queue
+    except Exception, e: # pylint: disable=broad-except
+        if safe:
+            result = False
+        else:
+            raise e
+    return result
+
+
 def queue_factory():
     factory = component.getUtility(IMetadataQueueFactory)
     return factory
