@@ -23,6 +23,8 @@
 	<subscriber handler=".subscribers._object_modified"
 				for="* zope.lifecycleevent.interfaces.IObjectModifiedEvent" />
 
+	<subscriber handler=".subscribers._on_user_lastseen" />
+
 	<!-- Register our queue -->
 	<configure zcml:condition="have devmode">
 		<configure zcml:condition="not-have testmode">
