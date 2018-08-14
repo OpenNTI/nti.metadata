@@ -28,7 +28,7 @@ from nti.coremetadata.interfaces import IRedisClient
 from nti.metadata.interfaces import INoMetadataAutoIndex
 
 from nti.metadata.processing import add_metadata_to_queue
-from nti.metadata.processing import add_user_event_to_queue
+from nti.metadata.processing import add_user_lastseen_event_to_queue
 
 from nti.zodb import isBroken
 
@@ -164,6 +164,8 @@ def process_last_seen_event(doc_id, ignore_errors=True):
 def queue_user_last_seen_event(obj):
     doc_id = get_obj_uid(obj)
     if doc_id is not None:
-        add_user_event_to_queue(QUEUE_NAMES[0], process_last_seen_event, doc_id)
+        add_user_lastseen_event_to_queue(QUEUE_NAMES[0], 
+                                         process_last_seen_event,
+                                         doc_id)
         return True
     return False
