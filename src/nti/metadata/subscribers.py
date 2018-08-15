@@ -18,12 +18,14 @@ from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 
 from nti.coremetadata.interfaces import IUser
 from nti.coremetadata.interfaces import IUserLastSeenEvent
+from nti.coremetadata.interfaces import IUserProcessedContextsEvent
 
 from nti.metadata import is_indexable
 from nti.metadata import queue_metadata_add
 from nti.metadata import queue_metadata_removed
 from nti.metadata import queue_metadata_modififed
 from nti.metadata import queue_user_last_seen_event
+from nti.metadata import queue_user_processed_contexts_event
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -51,3 +53,10 @@ def _object_modified(modeled, unused_event=None):
 @component.adapter(IUser, IUserLastSeenEvent)
 def _on_user_lastseen(user, unused_event=None):
     queue_user_last_seen_event(user)
+
+
+@component.adapter(IUser, IUserProcessedContextsEvent)
+def _on_user_processed_contexts(user, event):
+    queue_user_processed_contexts_event(user,
+                                        event.context_ids,
+                                        event.timestamp)

@@ -120,3 +120,16 @@ def add_user_lastseen_event_to_queue(queue_name, func, doc_id, site_name=None, *
                             doc_id=doc_id,
                             site_name=site_name,
                             **kwargs)
+
+
+def add_user_processed_contexts_event_to_queue(queue_name, func, doc_id, contexts,
+                                               timestamp, site_name=None, **kwargs):
+    job_id = "%s_processed_contexts" % doc_id
+    return put_metadata_job(queue_name,
+                            func,
+                            job_id=job_id,
+                            doc_id=doc_id,
+                            contexts=contexts,
+                            timestamp=timestamp,
+                            site_name=site_name,
+                            **kwargs)
