@@ -113,7 +113,7 @@ add_to_queue = add_metadata_to_queue  # BWC
 
 
 def add_user_lastseen_event_to_queue(queue_name, func, doc_id, site_name=None, **kwargs):
-    job_id = "%s_seen_user" % doc_id
+    job_id = "%s_user_seen" % doc_id
     return put_metadata_job(queue_name,
                             func,
                             job_id=job_id,
