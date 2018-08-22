@@ -24,9 +24,7 @@
 				for="* zope.lifecycleevent.interfaces.IObjectModifiedEvent" />
 
 	<subscriber handler=".subscribers._on_user_lastseen" />
-	<configure zcml:condition="have devmode">
-		<subscriber handler=".subscribers._on_user_processed_contexts" />
-	</configure>
+	<subscriber handler=".subscribers._on_user_processed_contexts" />
 
 	<!-- Register our queue -->
 	<configure zcml:condition="have devmode">
