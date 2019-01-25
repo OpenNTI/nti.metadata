@@ -50,7 +50,7 @@ class TestMetdata(unittest.TestCase):
     def test_events(self):
         fake_obj = fudge.Fake()
         catalog = DeferredCatalog()
-        redis = fakeredis.FakeStrictRedis(db=102)
+        redis = fakeredis.FakeStrictRedis()
 
         gsm = component.getGlobalSiteManager()
         gsm.registerUtility(redis, IRedisClient)
@@ -120,7 +120,7 @@ class TestMetdata(unittest.TestCase):
     def test_queue_event(self, mock_aq):
         assert_that(queue_event(None, ADDED), is_(False))
 
-        redis = fakeredis.FakeStrictRedis(db=102)
+        redis = fakeredis.FakeStrictRedis()
         gsm = component.getGlobalSiteManager()
         gsm.registerUtility(redis, IRedisClient)
 
