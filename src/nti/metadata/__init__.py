@@ -15,7 +15,7 @@ import six
 from zope import component
 
 from zope.catalog.interfaces import ICatalog
-from zope.catalog.interfaces import INoAutoIndex 
+from zope.catalog.interfaces import INoAutoIndex
 
 from zope.intid.interfaces import IIntIds
 
@@ -85,7 +85,7 @@ def get_obj_uid(obj):
     return doc_id
 
 
-def process_event(doc_id, event, ignore_errors=True):
+def process_event(doc_id, event, ignore_errors=False):
     result = True
     intids = get_intids()
     catalogs = metadata_catalogs()
@@ -166,7 +166,7 @@ def process_last_seen_event(doc_id, ignore_errors=True):
 def queue_user_last_seen_event(obj):
     doc_id = get_obj_uid(obj)
     if doc_id is not None:
-        add_user_lastseen_event_to_queue(QUEUE_NAMES[0], 
+        add_user_lastseen_event_to_queue(QUEUE_NAMES[0],
                                          process_last_seen_event,
                                          doc_id)
         return True
@@ -194,7 +194,7 @@ def process_processed_contexts_event(doc_id, contexts, timestamp, ignore_errors=
 def queue_user_processed_contexts_event(obj, contexts, timestamp):
     doc_id = get_obj_uid(obj)
     if doc_id is not None:
-        add_user_processed_contexts_event_to_queue(QUEUE_NAMES[0], 
+        add_user_processed_contexts_event_to_queue(QUEUE_NAMES[0],
                                                    process_processed_contexts_event,
                                                    doc_id,
                                                    contexts,
