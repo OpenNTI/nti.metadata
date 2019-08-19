@@ -106,15 +106,14 @@ class TestMetdata(unittest.TestCase):
         intid = MockIntId()
         gsm.registerUtility(intid, IIntIds)
 
-        assert_that(process_event(1, ADDED), is_(False))
-        assert_that(process_event(2, ADDED), is_(False))
-        assert_that(process_event(3, ADDED), is_(False))
-
-        assert_that(calling(process_event).with_args(3, ADDED, False),
-                    raises(TypeError))
-
-        gsm.unregisterUtility(intid, IIntIds)
-        gsm.unregisterUtility(catalog, IDeferredCatalog)
+        try:
+            assert_that(process_event(1, ADDED), is_(False))
+            assert_that(process_event(2, ADDED), is_(False))
+            assert_that(calling(process_event).with_args(3, ADDED),
+                        raises(TypeError))
+        finally:
+            gsm.unregisterUtility(intid, IIntIds)
+            gsm.unregisterUtility(catalog, IDeferredCatalog)
 
     @fudge.patch('nti.metadata.add_metadata_to_queue')
     def test_queue_event(self, mock_aq):
