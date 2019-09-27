@@ -30,6 +30,9 @@ from nti.metadata import queue_user_processed_contexts_event
 logger = __import__('logging').getLogger(__name__)
 
 
+LAST_SEEN_UPDATE_BUFFER_IN_SEC = 60
+
+
 @component.adapter(IIntIdAddedEvent)
 def _object_added(event):
     modeled = event.object
@@ -51,8 +54,12 @@ def _object_modified(modeled, unused_event=None):
 
 
 @component.adapter(IUser, IUserLastSeenEvent)
-def _on_user_lastseen(user, unused_event=None):
-    queue_user_last_seen_event(user)
+def _on_user_lastseen(user, event):
+    # Only update last seen if we are past our buffer threshold
+    if      user.lastSeenTime \
+        and user.lastSeenTime + LAST_SEEN_UPDATE_BUFFER_IN_SEC > event.timestamp:
+        return
+    queue_user_last_seen_event(user, event)
 
 
 @component.adapter(IUser, IUserProcessedContextsEvent)

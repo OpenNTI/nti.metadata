@@ -145,7 +145,7 @@ queue_removed = queue_metadata_removed # BWC
 # users
 
 
-def process_last_seen_event(doc_id, ignore_errors=True):
+def process_last_seen_event(doc_id, timestamp, ignore_errors=True):
     result = True
     intids = get_intids()
     catalog = entity_catalog()
@@ -153,6 +153,7 @@ def process_last_seen_event(doc_id, ignore_errors=True):
         if catalog is not None and IX_LASTSEEN_TIME in catalog:
             obj = intids.queryObject(doc_id)
             if IUser.providedBy(obj):
+                obj.update_last_seen_time(timestamp)
                 catalog[IX_LASTSEEN_TIME].index_doc(doc_id, obj)
     except Exception:  # pylint: disable=broad-except
         result = False
@@ -163,12 +164,13 @@ def process_last_seen_event(doc_id, ignore_errors=True):
     return result
 
 
-def queue_user_last_seen_event(obj):
+def queue_user_last_seen_event(obj, last_seen_event):
     doc_id = get_obj_uid(obj)
     if doc_id is not None:
         add_user_lastseen_event_to_queue(QUEUE_NAMES[0],
                                          process_last_seen_event,
-                                         doc_id)
+                                         doc_id,
+                                         last_seen_event.timestamp)
         return True
     return False
 
