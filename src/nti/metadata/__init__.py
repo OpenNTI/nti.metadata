@@ -30,7 +30,6 @@ from nti.metadata.interfaces import INoMetadataAutoIndex
 
 from nti.metadata.processing import add_metadata_to_queue
 from nti.metadata.processing import add_user_lastseen_event_to_queue
-from nti.metadata.processing import add_user_processed_contexts_event_to_queue
 
 from nti.zodb import isBroken
 
@@ -169,35 +168,5 @@ def queue_user_last_seen_event(obj):
         add_user_lastseen_event_to_queue(QUEUE_NAMES[0],
                                          process_last_seen_event,
                                          doc_id)
-        return True
-    return False
-
-
-def process_processed_contexts_event(doc_id, contexts, timestamp, ignore_errors=True):
-    result = True
-    intids = get_intids()
-    user = intids.queryObject(doc_id)
-    try:
-        container = IContextLastSeenContainer(user, None)
-        if container is not None and contexts:
-            # pylint: disable=too-many-function-args
-            container.extend(contexts, timestamp)
-    except Exception:  # pylint: disable=broad-except
-        result = False
-        if ignore_errors:
-            logger.exception("Error while setting user [%s] last seen contexts", doc_id)
-        else:
-            raise
-    return result
-
-
-def queue_user_processed_contexts_event(obj, contexts, timestamp):
-    doc_id = get_obj_uid(obj)
-    if doc_id is not None:
-        add_user_processed_contexts_event_to_queue(QUEUE_NAMES[0],
-                                                   process_processed_contexts_event,
-                                                   doc_id,
-                                                   contexts,
-                                                   timestamp)
         return True
     return False
