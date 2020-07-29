@@ -17,7 +17,7 @@ from zope.intid.interfaces import IIntIdRemovedEvent
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 
 from nti.coremetadata.interfaces import IUser
-from nti.coremetadata.interfaces import IUserLastSeenEvent
+from nti.coremetadata.interfaces import IUserLastSeenUpdatedEvent
 from nti.coremetadata.interfaces import IUserProcessedContextsEvent
 
 from nti.metadata import is_indexable
@@ -50,7 +50,7 @@ def _object_modified(modeled, unused_event=None):
         queue_metadata_modififed(modeled)
 
 
-@component.adapter(IUser, IUserLastSeenEvent)
+@component.adapter(IUser, IUserLastSeenUpdatedEvent)
 def _on_user_lastseen(user, unused_event=None):
     queue_user_last_seen_event(user)
 
