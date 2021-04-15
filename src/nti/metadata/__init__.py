@@ -20,7 +20,6 @@ from zope.catalog.interfaces import INoAutoIndex
 from zope.intid.interfaces import IIntIds
 
 from nti.coremetadata.interfaces import IX_LASTSEEN_TIME
-from nti.coremetadata.interfaces import ENTITY_CATALOG_NAME
 
 from nti.coremetadata.interfaces import IUser
 from nti.coremetadata.interfaces import IRedisClient
@@ -34,6 +33,8 @@ from nti.metadata.processing import add_user_lastseen_event_to_queue
 from nti.zodb import isBroken
 
 from nti.zope_catalog.interfaces import IDeferredCatalog
+
+METADATA_CATALOG_NAME = 'nti.dataserver.++etc++metadata-catalog'
 
 QUEUE_NAMES = ('++etc++metadata++queue',)
 
@@ -59,8 +60,8 @@ def metadata_catalogs():
     return tuple(component.getAllUtilitiesRegisteredFor(IDeferredCatalog))
 
 
-def entity_catalog():
-    return component.queryUtility(ICatalog, name=ENTITY_CATALOG_NAME)
+def metadata_catalog():
+    return component.queryUtility(ICatalog, name=METADATA_CATALOG_NAME)
 
 
 # queue
@@ -147,7 +148,7 @@ queue_removed = queue_metadata_removed # BWC
 def process_last_seen_event(doc_id, ignore_errors=True):
     result = True
     intids = get_intids()
-    catalog = entity_catalog()
+    catalog = metadata_catalog()
     try:
         if catalog is not None and IX_LASTSEEN_TIME in catalog:
             obj = intids.queryObject(doc_id)
