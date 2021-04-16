@@ -36,7 +36,9 @@ from nti.zope_catalog.interfaces import IDeferredCatalog
 
 METADATA_CATALOG_NAME = 'nti.dataserver.++etc++metadata-catalog'
 
-QUEUE_NAMES = ('++etc++metadata++queue',)
+METADATA_QUEUE_NAME = '++etc++metadata++queue'
+
+QUEUE_NAMES = (METADATA_QUEUE_NAME,)
 
 REMOVED = 0
 ADDED = 1
