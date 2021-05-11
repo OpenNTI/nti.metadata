@@ -13,6 +13,10 @@
 						schema="nti.metadata.interfaces.IMetadataQueueFactory"
 						handler="nti.metadata.zcml.registerImmediateProcessingQueue" />
 
+		<meta:directive name="registerTestImmediateProcessingQueue"
+                        schema="nti.metadata.interfaces.IMetadataQueueFactory"
+                        handler="nti.metadata.zcml.registerTestImmediateProcessingQueue" />
+
 		<meta:directive	name="registerProcessingQueue"
 						schema="nti.metadata.interfaces.IMetadataQueueFactory"
 						handler="nti.metadata.zcml.registerProcessingQueue" />
