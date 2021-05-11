@@ -20,7 +20,7 @@ from nti.asynchronous.interfaces import IRedisQueue
 from nti.asynchronous.redis_queue import RedisQueue
 
 from nti.asynchronous.scheduled import ImmediateQueueRunner as AsyncQueueRunner
-from nti.asynchronous.scheduled import ImmediateQueueRunner as AsyncNonRaisingQueueRunner
+from nti.asynchronous.scheduled import NonRaisingImmediateQueueRunner as AsyncNonRaisingQueueRunner
 
 from nti.coremetadata.interfaces import IRedisClient
 
